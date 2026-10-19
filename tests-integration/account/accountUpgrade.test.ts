@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { CairoOption, CairoOptionVariant, CallData, Contract, hash, RawArgs } from "starknet";
+import { CallData, Contract, hash, RawArgs } from "starknet";
 import {
   ArgentAccount,
   ArgentSigner,
@@ -16,7 +16,6 @@ import {
   randomEip191KeyPair,
   randomEthKeyPair,
   randomSecp256r1KeyPair,
-  randomStarknetKeyPair,
   randomWebauthnLegacyOwner,
   RawSigner,
   StarknetKeyPair,
@@ -51,7 +50,7 @@ describe("ArgentAccount: upgrade", function () {
   let randomNumber: bigint;
 
   before(async () => {
-    argentAccountClassHash = await manager.declareLocalContract("ArgentAccount");
+    argentAccountClassHash = await manager.declareLocalContract("OutisAccount");
     mockDapp = await manager.declareAndDeployContract("MockDapp");
 
     const v030 = "0.3.0";
@@ -77,27 +76,18 @@ describe("ArgentAccount: upgrade", function () {
       triggerEscapeGuardianCall: triggerEscapeGuardianCallV03,
     });
 
-    const v040 = "0.4.0";
-    classHashV040 = await manager.declareArtifactAccountContract(v040);
-    const triggerEscapeOwnerCallV04 = {
-      entrypoint: "trigger_escape_owner",
-      calldata: CallData.compile(randomStarknetKeyPair().compiledSigner),
-    };
-    const triggerEscapeGuardianCallV04 = {
-      entrypoint: "trigger_escape_guardian",
-      calldata: CallData.compile([new CairoOption(CairoOptionVariant.None)]),
-    };
-    upgradeData.push({
-      name: v040,
-      deployAccount: async () => deployAccount({ classHash: classHashV040 }),
-      deployAccountWithoutGuardians: async () => deployAccountWithoutGuardians({ classHash: classHashV040 }),
-      triggerEscapeOwnerCall: triggerEscapeOwnerCallV04,
-      triggerEscapeGuardianCall: triggerEscapeGuardianCallV04,
-    });
+    // Argent 0.4.0 is not in the list: from 0.4.0 on, an upgrade requires the new class to return
+    // the same name as the old one, and the Outis class returns 'OutisAccount'.
+    classHashV040 = await manager.declareArtifactAccountContract("0.4.0");
   });
 
   beforeEach(async () => {
     randomNumber = generateRandomNumber();
+  });
+
+  it("An Argent 0.4.0 account can't upgrade into the Outis class", async function () {
+    const { account } = await deployAccount({ classHash: classHashV040 });
+    await expectRevertWithErrorMessage("outis/invalid-name", upgradeAccount(account, argentAccountClassHash));
   });
 
   it("Waiting for upgradeData to be filled", function () {
@@ -224,7 +214,7 @@ describe("ArgentAccount: upgrade", function () {
   });
 
   it("Upgrade from current version FutureVersion", async function () {
-    const argentAccountFutureClassHash = await manager.declareLocalContract("MockFutureArgentAccount");
+    const argentAccountFutureClassHash = await manager.declareLocalContract("MockFutureOutisAccount");
     const { account } = await deployAccount();
 
     const response = await upgradeAccount(account, argentAccountFutureClassHash);
@@ -242,16 +232,17 @@ describe("ArgentAccount: upgrade", function () {
     );
 
     await upgradeAccount(account, mockDapp.classHash).should.be.rejectedWith(
-      "(0x617267656e742f6d756c746963616c6c2d6661696c6564 ('argent/multicall-failed'), 0x0 (''), 0x454e545259504f494e545f4e4f545f464f554e44 ('ENTRYPOINT_NOT_FOUND'), 0x454e545259504f494e545f4641494c4544 ('ENTRYPOINT_FAILED'), 0x454e545259504f494e545f4641494c4544 ('ENTRYPOINT_FAILED')).",
+      "(0x6f757469732f6d756c746963616c6c2d6661696c6564 ('outis/multicall-failed'), 0x0 (''), 0x454e545259504f494e545f4e4f545f464f554e44 ('ENTRYPOINT_NOT_FOUND'), 0x454e545259504f494e545f4641494c4544 ('ENTRYPOINT_FAILED'), 0x454e545259504f494e545f4641494c4544 ('ENTRYPOINT_FAILED')).",
     );
   });
 
   it("Shouldn't upgrade from current version to itself", async function () {
     const { account } = await deployAccount();
-    await expectRevertWithErrorMessage("argent/downgrade-not-allowed", upgradeAccount(account, argentAccountClassHash));
+    await expectRevertWithErrorMessage("outis/downgrade-not-allowed", upgradeAccount(account, argentAccountClassHash));
   });
 
-  describe("Testing upgrade version 0.4.0 with every signer type", function () {
+  // Not applicable to Outis: these upgrade an Argent 0.4.0 account, which the name check refuses.
+  describe.skip("Testing upgrade version 0.4.0 with every signer type", function () {
     const nonStarknetKeyPairs = [
       { name: "Ethereum signature", keyPair: randomEthKeyPair },
       { name: "Secp256r1 signature", keyPair: randomSecp256r1KeyPair },

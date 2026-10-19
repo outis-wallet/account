@@ -1,15 +1,15 @@
-use argent::account::Version;
-use argent::multiowner_account::owner_alive::OwnerAliveSignature;
-use argent::multiowner_account::recovery::Escape;
-use argent::recovery::{EscapeStatus};
-use argent::signer::signer_signature::{Signer, SignerInfo, SignerType};
-use argent::utils::serialization::serialize;
+use outis::account::Version;
+use outis::multiowner_account::owner_alive::OwnerAliveSignature;
+use outis::multiowner_account::recovery::Escape;
+use outis::recovery::{EscapeStatus};
+use outis::signer::signer_signature::{Signer, SignerInfo, SignerType};
+use outis::utils::serialization::serialize;
 use crate::{SignerKeyPair, SignerKeyPairImpl, StarknetKeyPair};
 use snforge_std::{ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address_global};
 use starknet::account::Call;
 
 #[starknet::interface]
-pub trait ITestArgentAccount<TContractState> {
+pub trait ITestOutisAccount<TContractState> {
     // IAccount
     fn __validate_declare__(self: @TContractState, class_hash: felt252) -> felt252;
     fn __validate__(ref self: TContractState, calls: Array<Call>) -> felt252;
@@ -52,7 +52,7 @@ pub trait ITestArgentAccount<TContractState> {
     // IErc165
     fn supports_interface(self: @TContractState, interface_id: felt252) -> bool;
 
-    // IDeprecatedArgentAccount
+    // IDeprecatedOutisAccount
     fn getVersion(self: @TContractState) -> felt252;
     fn getName(self: @TContractState) -> felt252;
     fn supportsInterface(self: @TContractState, interface_id: felt252) -> felt252;
@@ -64,36 +64,36 @@ pub trait ITestArgentAccount<TContractState> {
     fn is_session_revoked(self: @TContractState, session_hash: felt252) -> bool;
 }
 
-pub struct ArgentAccountSetup {
+pub struct OutisAccountSetup {
     pub owners: Array<SignerKeyPair>,
     pub guardians: Array<SignerKeyPair>,
-    pub account: ITestArgentAccountDispatcher,
+    pub account: ITestOutisAccountDispatcher,
 }
 
 #[derive(Drop)]
-pub struct ArgentAccountWithoutGuardianSetup {
+pub struct OutisAccountWithoutGuardianSetup {
     pub owners: Array<SignerKeyPair>,
-    pub account: ITestArgentAccountDispatcher,
+    pub account: ITestOutisAccountDispatcher,
 }
 
-// This initializes an ArgentAccount with an owner and a guardian on the Stark curve
-pub fn initialize_account() -> ArgentAccountSetup {
+// This initializes an OutisAccount with an owner and a guardian on the Stark curve
+pub fn initialize_account() -> OutisAccountSetup {
     let owners = array![SignerKeyPair::Starknet(StarknetKeyPair::random())];
     let guardians = array![SignerKeyPair::Starknet(StarknetKeyPair::random())];
     let account = initialize_account_with(owners.span(), guardians.span());
-    ArgentAccountSetup { owners, guardians, account }
+    OutisAccountSetup { owners, guardians, account }
 }
 
-// This initializes an ArgentAccount with an owner on the Stark curve
-pub fn initialize_account_without_guardian() -> ArgentAccountWithoutGuardianSetup {
+// This initializes an OutisAccount with an owner on the Stark curve
+pub fn initialize_account_without_guardian() -> OutisAccountWithoutGuardianSetup {
     let owners = array![SignerKeyPair::Starknet(StarknetKeyPair::random())];
     let account = initialize_account_with(owners.span(), array![].span());
-    ArgentAccountWithoutGuardianSetup { owners, account }
+    OutisAccountWithoutGuardianSetup { owners, account }
 }
 
 
-// This initializes an ArgentAccount with owner_count owners and guardian_count guardians on the Stark surve
-pub fn initialize_account_with_owners_and_guardians(owner_count: usize, guardian_count: usize) -> ArgentAccountSetup {
+// This initializes an OutisAccount with owner_count owners and guardian_count guardians on the Stark surve
+pub fn initialize_account_with_owners_and_guardians(owner_count: usize, guardian_count: usize) -> OutisAccountSetup {
     assert!(owner_count > 0, "owner_count must be greater than 0");
     assert!(guardian_count > 0, "guardian_count must be greater than 0");
     let mut owners = array![];
@@ -105,14 +105,14 @@ pub fn initialize_account_with_owners_and_guardians(owner_count: usize, guardian
         guardians.append(SignerKeyPair::Starknet(StarknetKeyPair::random()));
     };
     let account = initialize_account_with(owners.span(), guardians.span());
-    ArgentAccountSetup { owners, guardians, account }
+    OutisAccountSetup { owners, guardians, account }
 }
 
 
-// This could return a ArgentAccountWithoutGuardianSetup. But that would be less flexible.
+// This could return a OutisAccountWithoutGuardianSetup. But that would be less flexible.
 fn initialize_account_with(
     owners: Span<SignerKeyPair>, guardians: Span<SignerKeyPair>,
-) -> ITestArgentAccountDispatcher {
+) -> ITestOutisAccountDispatcher {
     let guardian = if guardians.len() > 0 {
         Option::Some(guardians[0].signer())
     } else {
@@ -121,12 +121,12 @@ fn initialize_account_with(
     let owner = owners[0].signer();
     let constructor_args = (owner, guardian);
 
-    let contract = declare("ArgentAccount").expect('Failed to declare ArgentAccount').contract_class();
-    let (contract_address, _) = contract.deploy(@serialize(@constructor_args)).expect('Failed to deploy ArgentAccount');
+    let contract = declare("OutisAccount").expect('Failed to declare OutisAccount').contract_class();
+    let (contract_address, _) = contract.deploy(@serialize(@constructor_args)).expect('Failed to deploy OutisAccount');
 
-    // This will set the caller for subsequent calls (avoid 'argent/only-self')
+    // This will set the caller for subsequent calls (avoid 'outis/only-self')
     start_cheat_caller_address_global(contract_address);
-    let account = ITestArgentAccountDispatcher { contract_address };
+    let account = ITestOutisAccountDispatcher { contract_address };
 
     let mut guardians_to_add = array![];
     for i in 1..guardians.len() {

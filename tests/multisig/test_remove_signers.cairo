@@ -1,6 +1,6 @@
-use argent::multisig_account::signer_manager::{OwnerRemovedGuid, ThresholdUpdated, signer_manager_component};
+use outis::multisig_account::signer_manager::{OwnerRemovedGuid, ThresholdUpdated, signer_manager_component};
 use crate::{
-    ITestArgentMultisigDispatcherTrait, MultisigSetup, SignerKeyPairImpl, StarknetKeyPair, initialize_multisig_m_of_n,
+    ITestOutisMultisigDispatcherTrait, MultisigSetup, SignerKeyPairImpl, StarknetKeyPair, initialize_multisig_m_of_n,
 };
 use snforge_std::{EventSpyAssertionsTrait, EventSpyTrait, spy_events};
 
@@ -199,7 +199,7 @@ fn remove_same_signer_twice() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/bad-threshold',))]
+#[should_panic(expected: ('outis/bad-threshold',))]
 fn remove_signers_invalid_threshold() {
     // init
     let MultisigSetup { multisig, signers, .. } = initialize_multisig_m_of_n(1, 3);
@@ -210,7 +210,7 @@ fn remove_signers_invalid_threshold() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/invalid-threshold',))]
+#[should_panic(expected: ('outis/invalid-threshold',))]
 fn remove_signers_zero_threshold() {
     // init
     let MultisigSetup { multisig, signers, .. } = initialize_multisig_m_of_n(1, 3);

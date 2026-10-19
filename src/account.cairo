@@ -1,4 +1,4 @@
-use argent::signer::signer_signature::Signer;
+use outis::signer::signer_signature::Signer;
 use starknet::account::Call;
 
 pub const SRC5_ACCOUNT_INTERFACE_ID: felt252 = 0x2ceccef7f994940b3962a6c67e0ba4fcd37df7d131417c604f91e03caecc1cd;
@@ -30,7 +30,7 @@ pub trait IAccount<TContractState> {
 }
 
 #[starknet::interface]
-pub trait IArgentAccount<TContractState> {
+pub trait IOutisAccount<TContractState> {
     fn __validate_declare__(self: @TContractState, class_hash: felt252) -> felt252;
     fn __validate_deploy__(
         self: @TContractState,
@@ -45,7 +45,7 @@ pub trait IArgentAccount<TContractState> {
 
 /// Deprecated methods for compatibility reasons
 #[starknet::interface]
-pub trait IDeprecatedArgentAccount<TContractState> {
+pub trait IDeprecatedOutisAccount<TContractState> {
     fn getVersion(self: @TContractState) -> felt252;
     fn getName(self: @TContractState) -> felt252;
     /// For compatibility reasons this function returns 1 when the signature is valid, and panics otherwise

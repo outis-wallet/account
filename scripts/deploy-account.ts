@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { deployAccount, deployer, manager } from "../lib";
 
-const accountClassHash = await manager.declareLocalContract("ArgentAccount", true);
+const accountClassHash = await manager.declareLocalContract("OutisAccount", true);
 console.log("ArgentAccount class hash:", accountClassHash);
 const mockDappClassHash = await manager.declareLocalContract("MockDapp", true);
 console.log("MockDapp class hash:", mockDappClassHash);

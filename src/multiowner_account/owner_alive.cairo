@@ -1,5 +1,5 @@
-use argent::offchain_message::{IOffChainMessageHashRev1, IStructHashRev1, StarknetDomain};
-use argent::signer::signer_signature::SignerSignature;
+use outis::offchain_message::{IOffChainMessageHashRev1, IStructHashRev1, StarknetDomain};
+use outis::signer::signer_signature::SignerSignature;
 use core::hash::{HashStateExTrait, HashStateTrait};
 use core::poseidon::PoseidonTrait;
 use starknet::{get_contract_address, get_tx_info};

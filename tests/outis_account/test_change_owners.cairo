@@ -1,17 +1,17 @@
-use argent::multiowner_account::owner_alive::{OwnerAlive, OwnerAliveSignature};
-use argent::multiowner_account::{
-    argent_account::ArgentAccount, events::{OwnerAddedGuid, OwnerRemovedGuid, SignerLinked},
+use outis::multiowner_account::owner_alive::{OwnerAlive, OwnerAliveSignature};
+use outis::multiowner_account::{
+    outis_account::OutisAccount, events::{OwnerAddedGuid, OwnerRemovedGuid, SignerLinked},
     owner_manager::owner_manager_component,
 };
-use argent::offchain_message::{IStructHashRev1, StarknetDomain};
-use argent::recovery::EscapeStatus;
-use argent::signer::signer_signature::{
+use outis::offchain_message::{IStructHashRev1, StarknetDomain};
+use outis::recovery::EscapeStatus;
+use outis::signer::signer_signature::{
     SignerSignature, SignerSignatureTrait, SignerTrait, StarknetSignature, StarknetSigner,
 };
 use core::hash::{HashStateExTrait, HashStateTrait};
 use core::poseidon::PoseidonTrait;
 use crate::{
-    ArgentAccountSetup, ArgentAccountWithoutGuardianSetup, ITestArgentAccountDispatcherTrait, SignerKeyPairImpl,
+    OutisAccountSetup, OutisAccountWithoutGuardianSetup, ITestOutisAccountDispatcherTrait, SignerKeyPairImpl,
     StarknetKeyPair, initialize_account, initialize_account_without_guardian,
 };
 use snforge_std::{
@@ -48,7 +48,7 @@ fn get_test_owner_alive_message_hash(owner_alive: OwnerAlive, contract_address: 
 
 #[test]
 fn change_owner() {
-    let ArgentAccountSetup { account, owners, .. } = initialize_account();
+    let OutisAccountSetup { account, owners, .. } = initialize_account();
     let mut spy = spy_events();
 
     let old_owner_guid = owners[0].into_guid();
@@ -87,11 +87,11 @@ fn change_owner() {
             ],
         );
 
-    // ArgentAccount events
-    let signer_link_event = ArgentAccount::Event::SignerLinked(
+    // OutisAccount events
+    let signer_link_event = OutisAccount::Event::SignerLinked(
         SignerLinked { signer_guid: new_owner_guid, signer: signer },
     );
-    let other_signer_link_event = ArgentAccount::Event::SignerLinked(
+    let other_signer_link_event = OutisAccount::Event::SignerLinked(
         SignerLinked { signer_guid: other_signer.into_guid(), signer: other_signer },
     );
     spy
@@ -102,7 +102,7 @@ fn change_owner() {
 
 #[test]
 fn change_owner_with_alive_signature() {
-    let ArgentAccountWithoutGuardianSetup { account, owners } = initialize_account_without_guardian();
+    let OutisAccountWithoutGuardianSetup { account, owners } = initialize_account_without_guardian();
 
     let old_owner_guid = owners[0].into_guid();
     assert_eq!(account.get_owner_guid(), old_owner_guid);
@@ -121,9 +121,9 @@ fn change_owner_with_alive_signature() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/invalid-signers-len',))]
+#[should_panic(expected: ('outis/invalid-signers-len',))]
 fn change_owner_remove_all_owners() {
-    let ArgentAccountWithoutGuardianSetup { account, owners } = initialize_account_without_guardian();
+    let OutisAccountWithoutGuardianSetup { account, owners } = initialize_account_without_guardian();
 
     let old_owner_guid = owners[0].into_guid();
     assert_eq!(account.get_owner_guid(), old_owner_guid);
@@ -136,7 +136,7 @@ fn change_owner_remove_all_owners() {
 
 #[test]
 fn change_owners_reset_escape() {
-    let ArgentAccountSetup { account, .. } = initialize_account();
+    let OutisAccountSetup { account, .. } = initialize_account();
     account.trigger_escape_owner(StarknetKeyPair::random().signer());
     let (_, not_ready) = account.get_escape_and_status();
     assert_eq!(not_ready, EscapeStatus::NotReady);
@@ -149,9 +149,9 @@ fn change_owners_reset_escape() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/timestamp-too-far-future',))]
+#[should_panic(expected: ('outis/timestamp-too-far-future',))]
 fn change_owners_too_far_future() {
-    let ArgentAccountSetup { account, .. } = initialize_account();
+    let OutisAccountSetup { account, .. } = initialize_account();
 
     let mut signature = new_owner_alive_signature(account.contract_address);
     signature.signature_expiration = (60 * 60 * 24) + 1;
@@ -165,18 +165,18 @@ fn change_owners_too_far_future() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/only-self',))]
+#[should_panic(expected: ('outis/only-self',))]
 fn change_owners_only_self() {
-    let ArgentAccountSetup { account, .. } = initialize_account();
+    let OutisAccountSetup { account, .. } = initialize_account();
 
     start_cheat_caller_address_global(42.try_into().unwrap());
     account.change_owners(array![], array![], Option::None);
 }
 
 #[test]
-#[should_panic(expected: ('argent/expired-signature',))]
+#[should_panic(expected: ('outis/expired-signature',))]
 fn change_owners_timestamp_expired() {
-    let ArgentAccountSetup { account, .. } = initialize_account();
+    let OutisAccountSetup { account, .. } = initialize_account();
 
     let mut signature = new_owner_alive_signature(account.contract_address);
     start_cheat_block_timestamp_global(VALID_UNTIL);
@@ -191,9 +191,9 @@ fn change_owners_timestamp_expired() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/invalid-alive-sig',))]
+#[should_panic(expected: ('outis/invalid-alive-sig',))]
 fn change_owners_invalid_signature() {
-    let ArgentAccountSetup { account, .. } = initialize_account();
+    let OutisAccountSetup { account, .. } = initialize_account();
 
     let mut signature = new_owner_alive_signature(account.contract_address);
     let signer = signature.owner_signature.signer();
@@ -213,9 +213,9 @@ fn change_owners_invalid_signature() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/invalid-sig-not-owner',))]
+#[should_panic(expected: ('outis/invalid-sig-not-owner',))]
 fn change_owners_signature_not_from_owner() {
-    let ArgentAccountSetup { account, .. } = initialize_account();
+    let OutisAccountSetup { account, .. } = initialize_account();
     let mut signature = new_owner_alive_signature(account.contract_address);
     account
         .change_owners(
@@ -224,9 +224,9 @@ fn change_owners_signature_not_from_owner() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/duplicated-guids',))]
+#[should_panic(expected: ('outis/duplicated-guids',))]
 fn change_owners_duplicates() {
-    let ArgentAccountSetup { account, owners, .. } = initialize_account();
+    let OutisAccountSetup { account, owners, .. } = initialize_account();
     let owner = owners[0];
     account
         .change_owners(
@@ -239,7 +239,7 @@ fn change_owners_duplicates() {
 #[test]
 #[should_panic(expected: ('linked-set/item-not-found',))]
 fn change_owners_remove_twice() {
-    let ArgentAccountSetup { account, owners, .. } = initialize_account();
+    let OutisAccountSetup { account, owners, .. } = initialize_account();
     let owner = owners[0];
 
     account
@@ -253,7 +253,7 @@ fn change_owners_remove_twice() {
 #[test]
 #[should_panic(expected: ('linked-set/already-in-set',))]
 fn change_owners_add_twice() {
-    let ArgentAccountSetup { account, .. } = initialize_account();
+    let OutisAccountSetup { account, .. } = initialize_account();
     let signer = StarknetKeyPair::random().signer();
 
     account
@@ -263,9 +263,9 @@ fn change_owners_add_twice() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/invalid-signers-len',))]
+#[should_panic(expected: ('outis/invalid-signers-len',))]
 fn change_owners_reach_limits() {
-    let ArgentAccountSetup { account, .. } = initialize_account();
+    let OutisAccountSetup { account, .. } = initialize_account();
 
     let mut owners_to_add = array![];
     for _ in 100..132_u8 {

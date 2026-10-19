@@ -1,11 +1,11 @@
-use argent::account::Version;
-use argent::multiowner_account::owner_alive::OwnerAliveSignature;
-use argent::multiowner_account::recovery::Escape;
-use argent::recovery::EscapeStatus;
-use argent::signer::signer_signature::Signer;
+use outis::account::Version;
+use outis::multiowner_account::owner_alive::OwnerAliveSignature;
+use outis::multiowner_account::recovery::Escape;
+use outis::recovery::EscapeStatus;
+use outis::signer::signer_signature::Signer;
 
 #[starknet::interface]
-pub trait IArgentMultiOwnerAccount<TContractState> {
+pub trait IOutisMultiOwnerAccount<TContractState> {
     fn __validate_declare__(self: @TContractState, class_hash: felt252) -> felt252;
     fn __validate_deploy__(
         self: @TContractState,

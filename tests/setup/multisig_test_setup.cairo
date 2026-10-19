@@ -1,13 +1,13 @@
-use argent::account::Version;
-use argent::signer::signer_signature::{Signer, SignerSignature};
-use argent::utils::serialization::serialize;
+use outis::account::Version;
+use outis::signer::signer_signature::{Signer, SignerSignature};
+use outis::utils::serialization::serialize;
 use crate::{SignerKeyPair, SignerKeyPairImpl, StarknetKeyPair};
 use snforge_std::{ContractClass, ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address_global};
 use starknet::account::Call;
 
 #[starknet::interface]
-pub trait ITestArgentMultisig<TContractState> {
-    // IAccount & IArgentAccount
+pub trait ITestOutisMultisig<TContractState> {
+    // IAccount & IOutisAccount
     fn __validate_declare__(self: @TContractState, class_hash: felt252) -> felt252;
     fn __validate__(ref self: TContractState, calls: Array<Call>) -> felt252;
     fn __execute__(ref self: TContractState, calls: Array<Call>) -> Array<Span<felt252>>;
@@ -37,7 +37,7 @@ pub trait ITestArgentMultisig<TContractState> {
     // IErc165
     fn supports_interface(self: @TContractState, interface_id: felt252) -> bool;
 
-    // IDeprecatedArgentMultisig
+    // IDeprecatedOutisMultisig
     fn getVersion(self: @TContractState) -> felt252;
     fn getName(self: @TContractState) -> felt252;
     fn supportsInterface(self: @TContractState, interface_id: felt252) -> felt252;
@@ -45,14 +45,14 @@ pub trait ITestArgentMultisig<TContractState> {
 }
 
 pub fn declare_multisig() -> ContractClass {
-    *declare("ArgentMultisigAccount").expect('Fail decl ArgentMultisigAccount').contract_class()
+    *declare("OutisMultisigAccount").expect('Fail decl OutisMultisigAccount').contract_class()
 }
 
 #[derive(Drop)]
 pub struct MultisigSetup {
     pub threshold: usize,
     pub signers: Array<SignerKeyPair>,
-    pub multisig: ITestArgentMultisigDispatcher,
+    pub multisig: ITestOutisMultisigDispatcher,
 }
 
 // This initializes a Multisig with all signers being over the Stark curve
@@ -65,7 +65,7 @@ pub fn initialize_multisig_m_of_n(threshold: usize, signers_count: usize) -> Mul
     MultisigSetup { threshold, signers, multisig }
 }
 
-fn initialize_multisig_with(threshold: usize, signers: Array<SignerKeyPair>) -> ITestArgentMultisigDispatcher {
+fn initialize_multisig_with(threshold: usize, signers: Array<SignerKeyPair>) -> ITestOutisMultisigDispatcher {
     let class_hash = declare_multisig();
     let mut actual_signers = array![];
     for signer in signers.span() {
@@ -75,7 +75,7 @@ fn initialize_multisig_with(threshold: usize, signers: Array<SignerKeyPair>) -> 
 
     let (contract_address, _) = class_hash.deploy(@serialize(@constructor_args)).expect('Multisig deployment fail');
 
-    // This will set the caller for subsequent calls (avoid 'argent/only-self')
+    // This will set the caller for subsequent calls (avoid 'outis/only-self')
     start_cheat_caller_address_global(contract_address);
-    ITestArgentMultisigDispatcher { contract_address }
+    ITestOutisMultisigDispatcher { contract_address }
 }

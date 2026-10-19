@@ -1,6 +1,6 @@
-use argent::multisig_account::signer_manager::{ThresholdUpdated, signer_manager_component};
+use outis::multisig_account::signer_manager::{ThresholdUpdated, signer_manager_component};
 use crate::{
-    ITestArgentMultisigDispatcherTrait, MultisigSetup, SignerKeyPairImpl, StarknetKeyPair, declare_multisig,
+    ITestOutisMultisigDispatcherTrait, MultisigSetup, SignerKeyPairImpl, StarknetKeyPair, declare_multisig,
     initialize_multisig_m_of_n,
 };
 use snforge_std::{ContractClassTrait, EventSpyAssertionsTrait, EventSpyTrait, spy_events};
@@ -42,8 +42,8 @@ fn invalid_threshold() {
     threshold.serialize(ref calldata);
     array![signer_1.signer()].serialize(ref calldata);
 
-    let argent_class = declare_multisig();
-    argent_class.deploy(@calldata).expect_err('argent/bad-threshold');
+    let outis_class = declare_multisig();
+    outis_class.deploy(@calldata).expect_err('outis/bad-threshold');
 }
 
 #[test]
@@ -61,7 +61,7 @@ fn change_threshold() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/bad-threshold',))]
+#[should_panic(expected: ('outis/bad-threshold',))]
 fn change_to_excessive_threshold() {
     let MultisigSetup { multisig, .. } = initialize_multisig_m_of_n(1, 1);
 
@@ -69,7 +69,7 @@ fn change_to_excessive_threshold() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/invalid-threshold',))]
+#[should_panic(expected: ('outis/invalid-threshold',))]
 fn change_to_zero_threshold() {
     let MultisigSetup { multisig, .. } = initialize_multisig_m_of_n(1, 1);
 
@@ -79,7 +79,7 @@ fn change_to_zero_threshold() {
 #[test]
 fn get_name() {
     let MultisigSetup { multisig, .. } = initialize_multisig_m_of_n(1, 3);
-    assert_eq!(multisig.get_name(), 'ArgentMultisig');
+    assert_eq!(multisig.get_name(), 'OutisMultisig');
 }
 
 #[test]

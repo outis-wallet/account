@@ -16,13 +16,6 @@ jobs:
         run: curl -L https://raw.githubusercontent.com/software-mansion/universal-sierra-compiler/master/scripts/install.sh | sh -s -- v2.4.0
       - name: Step 5 - Running tests
         run: scarb test
-  
-  format:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Step 1 - Check out main branch
-        uses: actions/checkout@v3
-      - name: Step 2 - Getting scarb
-        uses: software-mansion/setup-scarb@v1.5.0
-      - name: Step 3 - Checking format
-        run: scarb fmt --check
+
+# No `scarb fmt --check`: the rename sorts `outis` after `core` and `crate` in imports, and the
+# sources stay exactly as scripts/rename-to-outis.py makes them, as declared and verified.

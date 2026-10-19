@@ -2,7 +2,7 @@
 /// If that component's logic is changed, this could break the migration.
 #[starknet::component]
 pub mod upgrade_migration_component {
-    use argent::multisig_account::signer_manager::{
+    use outis::multisig_account::signer_manager::{
         signer_manager_component, signer_manager_component::ISignerManagerInternal,
     };
 

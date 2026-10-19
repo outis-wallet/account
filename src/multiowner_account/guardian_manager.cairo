@@ -1,4 +1,4 @@
-use argent::signer::signer_signature::{Signer, SignerInfo, SignerSignature, SignerType};
+use outis::signer::signer_signature::{Signer, SignerInfo, SignerSignature, SignerType};
 
 #[starknet::interface]
 pub trait IGuardianManager<TContractState> {
@@ -38,20 +38,20 @@ pub trait IGuardianManager<TContractState> {
 /// Managing the account guardians
 #[starknet::component]
 pub mod guardian_manager_component {
-    use argent::linked_set::linked_set_with_head::{
+    use outis::linked_set::linked_set_with_head::{
         LinkedSetWithHead, LinkedSetWithHeadReadImpl, LinkedSetWithHeadWriteImpl, MutableLinkedSetWithHeadReadImpl,
     };
-    use argent::multiowner_account::argent_account::ArgentAccount::Event as ArgentAccountEvent;
-    use argent::multiowner_account::argent_account::IEmitArgentAccountEvent;
-    use argent::multiowner_account::events::{GuardianAddedGuid, GuardianRemovedGuid, SignerLinked};
-    use argent::multiowner_account::signer_storage_linked_set::SignerStorageValueLinkedSetConfig;
-    use argent::signer::signer_signature::{
+    use outis::multiowner_account::outis_account::OutisAccount::Event as OutisAccountEvent;
+    use outis::multiowner_account::outis_account::IEmitOutisAccountEvent;
+    use outis::multiowner_account::events::{GuardianAddedGuid, GuardianRemovedGuid, SignerLinked};
+    use outis::multiowner_account::signer_storage_linked_set::SignerStorageValueLinkedSetConfig;
+    use outis::signer::signer_signature::{
         Signer, SignerInfo, SignerSignature, SignerSignatureTrait, SignerStorageTrait, SignerStorageValue, SignerTrait,
         SignerType, StarknetSignature, StarknetSigner,
     };
-    use argent::utils::array_ext::SpanContains;
-    use argent::utils::serialization::full_deserialize;
-    use argent::utils::transaction_version::is_estimate_transaction;
+    use outis::utils::array_ext::SpanContains;
+    use outis::utils::serialization::full_deserialize;
+    use outis::utils::transaction_version::is_estimate_transaction;
     use super::{IGuardianManager};
 
     /// Too many signers could make the account unable to process transactions if we reach a limit
@@ -71,7 +71,7 @@ pub mod guardian_manager_component {
 
     #[embeddable_as(GuardianManagerImpl)]
     impl GuardianManager<
-        TContractState, +HasComponent<TContractState>, +Drop<TContractState>, +IEmitArgentAccountEvent<TContractState>,
+        TContractState, +HasComponent<TContractState>, +Drop<TContractState>, +IEmitOutisAccountEvent<TContractState>,
     > of IGuardianManager<ComponentState<TContractState>> {
         fn get_guardians_guids(self: @ComponentState<TContractState>) -> Array<felt252> {
             self.guardians_storage.get_all_hashes()
@@ -102,7 +102,7 @@ pub mod guardian_manager_component {
         // legacy
         fn get_guardian(self: @ComponentState<TContractState>) -> felt252 {
             if let Option::Some(guardian) = self.get_single_or_no_guardian() {
-                assert(!guardian.is_stored_as_guid(), 'argent/only_guid');
+                assert(!guardian.is_stored_as_guid(), 'outis/only_guid');
                 guardian.stored_value
             } else {
                 // No guardians
@@ -123,7 +123,7 @@ pub mod guardian_manager_component {
 
     #[generate_trait]
     pub impl GuardianManagerInternal<
-        TContractState, +HasComponent<TContractState>, +IEmitArgentAccountEvent<TContractState>, +Drop<TContractState>,
+        TContractState, +HasComponent<TContractState>, +IEmitOutisAccountEvent<TContractState>, +Drop<TContractState>,
     > of IGuardianManagerInternal<TContractState> {
         /// @notice Initializes the contract with the first guardian. Should ony be called in the constructor
         /// @param guardian The first guardian of the account
@@ -136,7 +136,7 @@ pub mod guardian_manager_component {
         }
 
         fn migrate_guardians_storage(ref self: ComponentState<TContractState>, guardians: Array<SignerStorageValue>) {
-            assert(self.guardians_storage.is_empty(), 'argent/guardians-already-init');
+            assert(self.guardians_storage.is_empty(), 'outis/guardians-already-init');
 
             self.assert_valid_guardian_count(guardians.len());
             for guardian in guardians {
@@ -146,7 +146,7 @@ pub mod guardian_manager_component {
         }
 
         fn assert_guardian_set(self: @ComponentState<TContractState>) {
-            assert(self.has_guardian(), 'argent/guardian-required');
+            assert(self.has_guardian(), 'outis/guardian-required');
         }
 
         fn has_guardian(self: @ComponentState<TContractState>) -> bool {
@@ -158,7 +158,7 @@ pub mod guardian_manager_component {
             if !self.has_guardian() {
                 return Option::None;
             } else {
-                return Option::Some(self.guardians_storage.single().expect('argent/multiple-guardians'));
+                return Option::Some(self.guardians_storage.single().expect('outis/multiple-guardians'));
             }
         }
 
@@ -166,9 +166,9 @@ pub mod guardian_manager_component {
             self
                 .guardians_storage
                 .single()
-                .expect('argent/no-single-guardian')
+                .expect('outis/no-single-guardian')
                 .starknet_pubkey_or_none()
-                .expect('argent/not-strk-guardian')
+                .expect('outis/not-strk-guardian')
         }
 
         fn change_guardians(
@@ -192,7 +192,7 @@ pub mod guardian_manager_component {
             ref self: ComponentState<TContractState>, new_guardian: Option<SignerStorageValue>,
         ) {
             let guardians_to_add = if let Option::Some(new_guardian) = new_guardian {
-                assert(!self.is_guardian_guid(new_guardian.into_guid()), 'argent/new-guardian-is-guardian');
+                assert(!self.is_guardian_guid(new_guardian.into_guid()), 'outis/new-guardian-is-guardian');
                 array![new_guardian]
             } else {
                 array![]
@@ -212,27 +212,27 @@ pub mod guardian_manager_component {
         ) {
             let guardian_signature = self.parse_single_guardian_signature(raw_signature);
             let is_valid = self.is_valid_guardian_signature(hash, guardian_signature);
-            assert(is_valid, 'argent/invalid-guardian-sig');
+            assert(is_valid, 'outis/invalid-guardian-sig');
         }
     }
 
     #[generate_trait]
     impl Private<
-        TContractState, +HasComponent<TContractState>, +IEmitArgentAccountEvent<TContractState>, +Drop<TContractState>,
+        TContractState, +HasComponent<TContractState>, +IEmitOutisAccountEvent<TContractState>, +Drop<TContractState>,
     > of PrivateTrait<TContractState> {
         fn parse_single_guardian_signature(
             self: @ComponentState<TContractState>, mut raw_signature: Span<felt252>,
         ) -> SignerSignature {
             if raw_signature.len() != 2 {
                 let signature_array: Array<SignerSignature> = full_deserialize(raw_signature)
-                    .expect('argent/invalid-signature-format');
-                assert(signature_array.len() == 1, 'argent/invalid-signature-length');
+                    .expect('outis/invalid-signature-format');
+                assert(signature_array.len() == 1, 'outis/invalid-signature-length');
                 return *signature_array.at(0);
             }
             let single_stark_guardian = self.get_single_stark_guardian_pubkey();
             return SignerSignature::Starknet(
                 (
-                    StarknetSigner { pubkey: single_stark_guardian.try_into().expect('argent/zero-pubkey') },
+                    StarknetSigner { pubkey: single_stark_guardian.try_into().expect('outis/zero-pubkey') },
                     StarknetSignature {
                         r: *raw_signature.pop_front().unwrap(), s: *raw_signature.pop_front().unwrap(),
                     },
@@ -254,7 +254,7 @@ pub mod guardian_manager_component {
             };
 
             for guardian in guardians_to_add {
-                assert(!guardian_to_remove_span.contains(guardian.into_guid()), 'argent/duplicated-guids');
+                assert(!guardian_to_remove_span.contains(guardian.into_guid()), 'outis/duplicated-guids');
                 let guardian_guid = self.guardians_storage.insert(guardian);
                 self.emit_guardian_added(guardian_guid);
             };
@@ -263,12 +263,12 @@ pub mod guardian_manager_component {
         }
 
         fn assert_valid_guardian_count(self: @ComponentState<TContractState>, signers_len: usize) {
-            assert(signers_len <= MAX_SIGNERS_COUNT, 'argent/invalid-signers-len');
+            assert(signers_len <= MAX_SIGNERS_COUNT, 'outis/invalid-signers-len');
         }
 
         fn emit_signer_linked_event(ref self: ComponentState<TContractState>, event: SignerLinked) {
             let mut contract = self.get_contract_mut();
-            contract.emit_event_callback(ArgentAccountEvent::SignerLinked(event));
+            contract.emit_event_callback(OutisAccountEvent::SignerLinked(event));
         }
 
         fn emit_guardian_added(ref self: ComponentState<TContractState>, new_guardian_guid: felt252) {

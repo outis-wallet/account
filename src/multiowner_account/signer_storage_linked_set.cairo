@@ -1,5 +1,5 @@
-use argent::linked_set::linked_set::LinkedSetConfig;
-use argent::signer::signer_signature::{SignerStorageTrait, SignerStorageValue, SignerType};
+use outis::linked_set::linked_set::LinkedSetConfig;
+use outis::signer::signer_signature::{SignerStorageTrait, SignerStorageValue, SignerType};
 use starknet::storage::{StoragePath, StoragePointerReadAccess};
 
 

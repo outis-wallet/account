@@ -11,7 +11,7 @@ describe("ArgentAccount: session outside execution", function () {
   let randomNumber: bigint;
 
   before(async () => {
-    argentSessionAccountClassHash = await manager.declareLocalContract("ArgentAccount");
+    argentSessionAccountClassHash = await manager.declareLocalContract("OutisAccount");
     mockDapp = await manager.declareAndDeployContract("MockDapp");
   });
 

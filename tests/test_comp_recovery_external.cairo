@@ -1,11 +1,11 @@
-use argent::multisig_account::external_recovery::{
+use outis::multisig_account::external_recovery::{
     EscapeCall, EscapeCanceled, EscapeTriggered, IExternalRecoveryDispatcher, IExternalRecoveryDispatcherTrait,
     external_recovery_component, get_escape_call_hash,
 };
-use argent::multisig_account::signer_manager::{ISignerManagerDispatcher, ISignerManagerDispatcherTrait};
-use argent::recovery::EscapeStatus;
-use argent::signer::signer_signature::Signer;
-use argent::utils::serialization::serialize;
+use outis::multisig_account::signer_manager::{ISignerManagerDispatcher, ISignerManagerDispatcherTrait};
+use outis::recovery::EscapeStatus;
+use outis::signer::signer_signature::Signer;
+use outis::utils::serialization::serialize;
 use crate::StarknetKeyPair;
 use snforge_std::{
     ContractClassTrait, DeclareResultTrait, EventSpyAssertionsTrait, EventSpyTrait, declare, spy_events,
@@ -15,11 +15,11 @@ use starknet::ContractAddress;
 
 #[starknet::contract]
 mod ExternalRecoveryMock {
-    use argent::multisig_account::external_recovery::{IExternalRecoveryCallback, external_recovery_component};
-    use argent::multisig_account::signer_manager::{
+    use outis::multisig_account::external_recovery::{IExternalRecoveryCallback, external_recovery_component};
+    use outis::multisig_account::signer_manager::{
         signer_manager_component, signer_manager_component::SignerManagerInternalImpl,
     };
-    use argent::utils::calls::execute_multicall;
+    use outis::utils::calls::execute_multicall;
     use openzeppelin_security::reentrancyguard::{ReentrancyGuardComponent, ReentrancyGuardComponent::InternalImpl};
 
     component!(path: external_recovery_component, storage: escape, event: EscapeEvents);
@@ -115,7 +115,7 @@ fn test_toggle_escape() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/only-self',))]
+#[should_panic(expected: ('outis/only-self',))]
 fn test_toggle_unauthorized() {
     let CompRecoverySetup { recovery_component, guardian, .. } = setup();
     start_cheat_caller_address_global(42.try_into().unwrap());
@@ -123,21 +123,21 @@ fn test_toggle_unauthorized() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/invalid-guardian',))]
+#[should_panic(expected: ('outis/invalid-guardian',))]
 fn test_toggle_guardian_same_as_account() {
     let CompRecoverySetup { recovery_component, recovery_comp_address, .. } = setup();
     recovery_component.toggle_escape(true, MIN_ESCAPE_PERIOD, MIN_ESCAPE_PERIOD, recovery_comp_address);
 }
 
 #[test]
-#[should_panic(expected: ('argent/invalid-security-period',))]
+#[should_panic(expected: ('outis/invalid-security-period',))]
 fn test_toggle_small_security_period() {
     let CompRecoverySetup { recovery_component, .. } = setup();
     recovery_component.toggle_escape(true, MIN_ESCAPE_PERIOD - 1, MIN_ESCAPE_PERIOD, 0.try_into().unwrap());
 }
 
 #[test]
-#[should_panic(expected: ('argent/invalid-expiry-period',))]
+#[should_panic(expected: ('outis/invalid-expiry-period',))]
 fn test_toggle_small_expiry_period() {
     let CompRecoverySetup { recovery_component, .. } = setup();
     recovery_component.toggle_escape(true, MIN_ESCAPE_PERIOD, MIN_ESCAPE_PERIOD - 1, 0.try_into().unwrap());
@@ -145,7 +145,7 @@ fn test_toggle_small_expiry_period() {
 
 
 #[test]
-#[should_panic(expected: ('argent/invalid-zero-guardian',))]
+#[should_panic(expected: ('outis/invalid-zero-guardian',))]
 fn test_toggle_zero_guardian() {
     let CompRecoverySetup { recovery_component, .. } = setup();
     recovery_component.toggle_escape(true, MIN_ESCAPE_PERIOD, MIN_ESCAPE_PERIOD, 0.try_into().unwrap());
@@ -156,7 +156,7 @@ fn replace_signer_call(remove: @Signer, replace_with: Signer) -> EscapeCall {
 }
 
 #[test]
-#[should_panic(expected: ('argent/ongoing-escape',))]
+#[should_panic(expected: ('outis/ongoing-escape',))]
 fn test_toggle__true_with_not_ready_escape() {
     let CompRecoverySetup { recovery_component, guardian, signers, recovery_comp_address, .. } = setup();
 
@@ -173,7 +173,7 @@ fn test_toggle__true_with_not_ready_escape() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/ongoing-escape',))]
+#[should_panic(expected: ('outis/ongoing-escape',))]
 fn test_toggle_false_with_not_ready_escape() {
     let CompRecoverySetup { recovery_component, guardian, signers, recovery_comp_address, .. } = setup();
 
@@ -190,7 +190,7 @@ fn test_toggle_false_with_not_ready_escape() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/ongoing-escape',))]
+#[should_panic(expected: ('outis/ongoing-escape',))]
 fn test_toggle_true_with_ready_escape() {
     let CompRecoverySetup { recovery_component, guardian, signers, recovery_comp_address, .. } = setup();
 
@@ -208,7 +208,7 @@ fn test_toggle_true_with_ready_escape() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/ongoing-escape',))]
+#[should_panic(expected: ('outis/ongoing-escape',))]
 fn test_toggle_false_with_ready_escape() {
     let CompRecoverySetup { recovery_component, guardian, signers, recovery_comp_address, .. } = setup();
 
@@ -315,7 +315,7 @@ fn test_trigger_escape_can_override() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/only-guardian',))]
+#[should_panic(expected: ('outis/only-guardian',))]
 fn test_trigger_escape_not_enabled() {
     let CompRecoverySetup { recovery_component, guardian, signers, .. } = setup();
     recovery_component.toggle_escape(false, 0, 0, 0.try_into().unwrap());
@@ -324,7 +324,7 @@ fn test_trigger_escape_not_enabled() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/only-guardian',))]
+#[should_panic(expected: ('outis/only-guardian',))]
 fn test_trigger_escape_unauthorized() {
     let CompRecoverySetup { recovery_component, signers, .. } = setup();
     start_cheat_caller_address_global(42.try_into().unwrap());
@@ -334,7 +334,7 @@ fn test_trigger_escape_unauthorized() {
 // Escape
 
 #[test]
-#[should_panic(expected: ('argent/invalid-escape',))]
+#[should_panic(expected: ('outis/invalid-escape',))]
 fn test_execute_escape_NotReady() {
     let CompRecoverySetup { recovery_component, guardian, signers, .. } = setup();
     start_cheat_caller_address_global(guardian);
@@ -345,7 +345,7 @@ fn test_execute_escape_NotReady() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/invalid-escape',))]
+#[should_panic(expected: ('outis/invalid-escape',))]
 fn test_execute_escape_Expired() {
     let CompRecoverySetup { recovery_component, guardian, signers, .. } = setup();
     start_cheat_caller_address_global(guardian);
@@ -408,7 +408,7 @@ fn test_cancel_escape_expired() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/only-self',))]
+#[should_panic(expected: ('outis/only-self',))]
 fn test_cancel_escape_unauthorized() {
     let CompRecoverySetup { recovery_component, guardian, signers, .. } = setup();
     start_cheat_caller_address_global(guardian);

@@ -1,5 +1,5 @@
-use argent::signer::eip191::calculate_eip191_hash;
-use argent::signer::signer_signature::{
+use outis::signer::eip191::calculate_eip191_hash;
+use outis::signer::signer_signature::{
     Eip191Signer, Secp256k1Signer, Secp256r1Signer, Signer, SignerSignature, SignerTrait, StarknetSignature,
     StarknetSigner,
 };

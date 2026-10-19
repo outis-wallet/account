@@ -18,7 +18,7 @@ describe("ArgentAccount", function () {
   let argentAccountClassHash: string;
 
   before(async () => {
-    argentAccountClassHash = await manager.declareLocalContract("ArgentAccount");
+    argentAccountClassHash = await manager.declareLocalContract("OutisAccount");
   });
 
   it("Deploy externally", async function () {
@@ -163,7 +163,7 @@ describe("ArgentAccount", function () {
         }),
       )
       .should.be.rejectedWith(
-        "(0x617267656e742f6d756c746963616c6c2d6661696c6564 ('argent/multicall-failed'), 0x0 (''), 0x454e545259504f494e545f4e4f545f464f554e44 ('ENTRYPOINT_NOT_FOUND'), 0x454e545259504f494e545f4641494c4544 ('ENTRYPOINT_FAILED'))",
+        "(0x6f757469732f6d756c746963616c6c2d6661696c6564 ('outis/multicall-failed'), 0x0 (''), 0x454e545259504f494e545f4e4f545f464f554e44 ('ENTRYPOINT_NOT_FOUND'), 0x454e545259504f494e545f4641494c4544 ('ENTRYPOINT_FAILED'))",
       );
   });
 });

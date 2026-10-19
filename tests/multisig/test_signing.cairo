@@ -1,7 +1,7 @@
-use argent::signer::signer_signature::{SignerSignature, SignerSignatureTrait, SignerTrait};
-use argent::utils::serialization::serialize;
+use outis::signer::signer_signature::{SignerSignature, SignerSignatureTrait, SignerTrait};
+use outis::utils::serialization::serialize;
 use crate::{
-    ITestArgentMultisigDispatcherTrait, MultisigSetup, SignerKeyPairImpl, StarknetKeyPair, initialize_multisig_m_of_n,
+    ITestOutisMultisigDispatcherTrait, MultisigSetup, SignerKeyPairImpl, StarknetKeyPair, initialize_multisig_m_of_n,
 };
 use snforge_std::{generate_random_felt};
 use starknet::VALIDATED;
@@ -30,7 +30,7 @@ fn test_double_signature() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/signatures-not-sorted',))]
+#[should_panic(expected: ('outis/signatures-not-sorted',))]
 fn test_double_signature_order() {
     let threshold = 2;
     let MultisigSetup { multisig, signers, .. } = initialize_multisig_m_of_n(threshold, 2);
@@ -45,7 +45,7 @@ fn test_double_signature_order() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/signatures-not-sorted',))]
+#[should_panic(expected: ('outis/signatures-not-sorted',))]
 fn test_same_owner_twice() {
     let threshold = 2;
     let MultisigSetup { multisig, signers, .. } = initialize_multisig_m_of_n(threshold, 2);
@@ -57,7 +57,7 @@ fn test_same_owner_twice() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/signature-invalid-length',))]
+#[should_panic(expected: ('outis/signature-invalid-length',))]
 fn test_missing_owner_signature() {
     let threshold = 2;
     let MultisigSetup { multisig, signers, .. } = initialize_multisig_m_of_n(threshold, 2);
@@ -69,7 +69,7 @@ fn test_missing_owner_signature() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/invalid-signature-format',))]
+#[should_panic(expected: ('outis/invalid-signature-format',))]
 fn test_short_signature() {
     let MultisigSetup { multisig, .. } = initialize_multisig_m_of_n(1, 1);
     // Missing S
@@ -81,7 +81,7 @@ fn test_short_signature() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/not-a-signer',))]
+#[should_panic(expected: ('outis/not-a-signer',))]
 fn test_not_a_signer() {
     let MultisigSetup { multisig, .. } = initialize_multisig_m_of_n(1, 1);
 
@@ -91,7 +91,7 @@ fn test_not_a_signer() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/signature-invalid-length',))]
+#[should_panic(expected: ('outis/signature-invalid-length',))]
 fn test_long_signature() {
     let MultisigSetup { multisig, .. } = initialize_multisig_m_of_n(1, 1);
     let tx_hash = generate_random_felt();
@@ -102,7 +102,7 @@ fn test_long_signature() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/invalid-signature-format',))]
+#[should_panic(expected: ('outis/invalid-signature-format',))]
 fn test_empty_array_signature() {
     let MultisigSetup { multisig, .. } = initialize_multisig_m_of_n(1, 1);
 

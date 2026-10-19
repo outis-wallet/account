@@ -25,7 +25,7 @@ pub mod multisig_account {
 
 pub mod multiowner_account {
     pub mod account_interface;
-    pub mod argent_account;
+    pub mod outis_account;
     pub mod events;
     pub mod guardian_manager;
     pub mod owner_alive;
@@ -58,8 +58,8 @@ pub mod session {
 
 
 pub mod mocks {
-    mod future_argent_account;
-    mod future_argent_multisig;
+    mod future_outis_account;
+    mod future_outis_multisig;
     mod mock_dapp;
     mod stable_address_deployer_mock;
 }

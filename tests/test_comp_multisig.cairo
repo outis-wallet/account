@@ -1,14 +1,14 @@
-use argent::multisig_account::signer_manager::{
+use outis::multisig_account::signer_manager::{
     ISignerManager, signer_manager_component, signer_manager_component::ISignerManagerInternal,
 };
-use argent::signer::signer_signature::{Signer, SignerTrait};
+use outis::signer::signer_signature::{Signer, SignerTrait};
 use crate::StarknetKeyPair;
 use snforge_std::{start_cheat_caller_address_global, test_address};
 
 
 #[starknet::contract]
 pub mod MultisigMock {
-    use argent::multisig_account::signer_manager::signer_manager_component;
+    use outis::multisig_account::signer_manager::signer_manager_component;
 
     component!(path: signer_manager_component, storage: signer_manager, event: SignerManagerEvents);
     impl SignerManager = signer_manager_component::SignerManagerImpl<ContractState>;
@@ -70,7 +70,7 @@ fn test_initialize_3_signers() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/invalid-threshold',))]
+#[should_panic(expected: ('outis/invalid-threshold',))]
 fn test_initialize_threshold_zero() {
     let mut component = COMPONENT_STATE();
     component
@@ -85,7 +85,7 @@ fn test_initialize_threshold_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/bad-threshold',))]
+#[should_panic(expected: ('outis/bad-threshold',))]
 fn test_initialize_threshold_larger_then_signers() {
     let mut component = COMPONENT_STATE();
     component
@@ -100,7 +100,7 @@ fn test_initialize_threshold_larger_then_signers() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/invalid-signers-len',))]
+#[should_panic(expected: ('outis/invalid-signers-len',))]
 fn test_initialize_no_signers() {
     let mut component = COMPONENT_STATE();
     component.initialize(1, array![]);
@@ -125,7 +125,7 @@ fn test_change_threshold() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/same-threshold',))]
+#[should_panic(expected: ('outis/same-threshold',))]
 fn test_change_threshold_same() {
     let CompMultisigSetup { mut component, .. } = initialize_with_3_signers();
     assert_eq!(component.get_threshold(), 2);
@@ -161,7 +161,7 @@ fn test_add_2_signers_same_threshold() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/bad-threshold',))]
+#[should_panic(expected: ('outis/bad-threshold',))]
 fn test_add_1_signer_invalid_threshold() {
     let mut component = COMPONENT_STATE();
     component.initialize(2, array![StarknetKeyPair::random().signer(), StarknetKeyPair::random().signer()]);
@@ -213,14 +213,14 @@ fn test_remove_2_signers() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/bad-threshold',))]
+#[should_panic(expected: ('outis/bad-threshold',))]
 fn test_remove_signer_invalid_threshold() {
     let CompMultisigSetup { mut component, signers } = initialize_with_3_signers();
     component.remove_signers(3, array![*signers[2]]);
 }
 
 #[test]
-#[should_panic(expected: ('argent/invalid-signers-len',))]
+#[should_panic(expected: ('outis/invalid-signers-len',))]
 fn test_remove_all_signers() {
     let CompMultisigSetup { mut component, signers } = initialize_with_3_signers();
     component.remove_signers(1, array![*signers[0], *signers[1], *signers[2]]);

@@ -1,5 +1,5 @@
-use argent::multiowner_account::argent_account::AccountSignature;
-use argent::signer::signer_signature::{Signer, SignerSignature};
+use outis::multiowner_account::outis_account::AccountSignature;
+use outis::signer::signer_signature::{Signer, SignerSignature};
 /// @notice Configuration for a session that allows a session key to execute transactions
 /// @dev The session must have an authorization to be usable. The authorization is a signature over the session by one
 /// owner and one guardian
@@ -76,13 +76,13 @@ pub mod session_component {
     use alexandria_merkle_tree::merkle_tree::{
         Hasher, MerkleTree, MerkleTreeImpl, MerkleTreeTrait, poseidon::PoseidonHasherImpl,
     };
-    use argent::account::IAccount;
-    use argent::session::{
+    use outis::account::IAccount;
+    use outis::session::{
         session::{ISessionCallback, ISessionable, SessionToken},
         session_hash::{MerkleLeafHash, OffChainMessageHashSessionRev1},
     };
-    use argent::signer::signer_signature::{Signer, SignerSignatureTrait, SignerTrait};
-    use argent::utils::{
+    use outis::signer::signer_signature::{Signer, SignerSignatureTrait, SignerTrait};
+    use outis::utils::{
         asserts::{assert_no_self_call, assert_only_self}, serialization::full_deserialize,
         transaction_version::is_estimate_transaction,
     };

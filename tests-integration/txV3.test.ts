@@ -24,7 +24,7 @@ for (const accountType of ["individual", "multisig"]) {
       mockDapp.providerOrAccount = account;
       const randomNumber = generateRandomNumber();
       const { transaction_hash: transferTxHash } = await mockDapp.set_number(randomNumber);
-      await account.waitForTransaction(transferTxHash);
+      await account.provider.waitForTransaction(transferTxHash);
       await mockDapp.get_number(account.address).should.eventually.equal(randomNumber, "invalid new value");
     });
 
@@ -33,7 +33,7 @@ for (const accountType of ["individual", "multisig"]) {
       mockDapp.providerOrAccount = account;
       const call = mockDapp.populateTransaction.set_number(generateRandomNumber());
       await expectRevertWithErrorMessage(
-        "argent/unsupported-paymaster",
+        "outis/unsupported-paymaster",
         account.execute(call, {
           paymasterData: ["0x1"],
         }),

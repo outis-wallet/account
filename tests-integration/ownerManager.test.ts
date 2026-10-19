@@ -3,7 +3,7 @@ import { CairoOption, CairoOptionVariant, CallData } from "starknet";
 import { deployAccountWithoutGuardians, expectRevertWithErrorMessage, manager, randomStarknetKeyPair } from "../lib";
 describe("Owner Manager Tests", function () {
   before(async () => {
-    await manager.declareLocalContract("ArgentAccount");
+    await manager.declareLocalContract("OutisAccount");
   });
 
   describe("Add Owners", function () {
@@ -124,7 +124,7 @@ describe("Owner Manager Tests", function () {
     it("Can't self remove without signature", async function () {
       const { accountContract, owner } = await deployAccountWithoutGuardians();
       await expectRevertWithErrorMessage(
-        "argent/missing-owner-alive",
+        "outis/missing-owner-alive",
         accountContract.change_owners(
           CallData.compile({
             remove: [owner.guid],

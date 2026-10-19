@@ -1,5 +1,5 @@
-use argent::recovery::EscapeStatus;
-use argent::utils::serialization::serialize;
+use outis::recovery::EscapeStatus;
+use outis::utils::serialization::serialize;
 use core::num::traits::zero::Zero;
 use starknet::ContractAddress;
 use starknet::storage_access::StorePacking;
@@ -100,11 +100,11 @@ pub trait IExternalRecoveryCallback<TContractState> {
 /// @dev The recovery can be canceled by the authorized signers
 #[starknet::component]
 pub mod external_recovery_component {
-    use argent::multisig_account::external_recovery::{
+    use outis::multisig_account::external_recovery::{
         Escape, EscapeCall, EscapeCanceled, EscapeEnabled, EscapeExecuted, EscapeTriggered, IExternalRecovery,
     };
-    use argent::recovery::EscapeStatus;
-    use argent::utils::asserts::assert_only_self;
+    use outis::recovery::EscapeStatus;
+    use outis::utils::asserts::assert_only_self;
     use openzeppelin_security::reentrancyguard::{ReentrancyGuardComponent, ReentrancyGuardComponent::InternalImpl};
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use starknet::{
@@ -143,14 +143,14 @@ pub mod external_recovery_component {
             self.assert_only_guardian();
 
             let escape_config: EscapeEnabled = self.escape_enabled.read();
-            assert(escape_config.is_enabled, 'argent/recovery-disabled');
+            assert(escape_config.is_enabled, 'outis/recovery-disabled');
             let call_hash = get_escape_call_hash(@call);
             assert(
                 call.selector == selector!("replace_signer")
                     || call.selector == selector!("remove_signers")
                     || call.selector == selector!("add_signers")
                     || call.selector == selector!("change_threshold"),
-                'argent/invalid-selector',
+                'outis/invalid-selector',
             );
 
             let current_escape: Escape = self.escape.read();
@@ -172,8 +172,8 @@ pub mod external_recovery_component {
             let escape_config = self.escape_enabled.read();
             let current_escape_status = self.get_escape_status(current_escape.ready_at, escape_config.expiry_period);
             let call_hash = get_escape_call_hash(@call);
-            assert(current_escape_status == EscapeStatus::Ready, 'argent/invalid-escape');
-            assert(current_escape.call_hash == get_escape_call_hash(@call), 'argent/invalid-escape-call');
+            assert(current_escape_status == EscapeStatus::Ready, 'outis/invalid-escape');
+            assert(current_escape.call_hash == get_escape_call_hash(@call), 'outis/invalid-escape-call');
 
             let mut callback = self.get_contract_mut();
             callback.execute_recovery_call(call.selector, call.calldata.span());
@@ -189,7 +189,7 @@ pub mod external_recovery_component {
             let current_escape = self.escape.read();
             let escape_config = self.escape_enabled.read();
             let current_escape_status = self.get_escape_status(current_escape.ready_at, escape_config.expiry_period);
-            assert(current_escape_status != EscapeStatus::None, 'argent/invalid-escape');
+            assert(current_escape_status != EscapeStatus::None, 'outis/invalid-escape');
             self.escape.write(Default::default());
             if current_escape_status != EscapeStatus::Expired {
                 self.emit(EscapeCanceled { call_hash: current_escape.call_hash });
@@ -221,22 +221,22 @@ pub mod external_recovery_component {
             let current_escape_status = self.get_escape_status(current_escape.ready_at, escape_config.expiry_period);
             match current_escape_status {
                 EscapeStatus::None => (), // ignore
-                EscapeStatus::NotReady | EscapeStatus::Ready => core::panic_with_felt252('argent/ongoing-escape'),
+                EscapeStatus::NotReady | EscapeStatus::Ready => core::panic_with_felt252('outis/ongoing-escape'),
                 EscapeStatus::Expired => self.escape.write(Default::default()),
             }
 
             if is_enabled {
-                assert(security_period >= MIN_ESCAPE_PERIOD, 'argent/invalid-security-period');
-                assert(expiry_period >= MIN_ESCAPE_PERIOD, 'argent/invalid-expiry-period');
-                assert(guardian != contract_address_const::<0>(), 'argent/invalid-zero-guardian');
-                assert(guardian != get_contract_address(), 'argent/invalid-guardian');
+                assert(security_period >= MIN_ESCAPE_PERIOD, 'outis/invalid-security-period');
+                assert(expiry_period >= MIN_ESCAPE_PERIOD, 'outis/invalid-expiry-period');
+                assert(guardian != contract_address_const::<0>(), 'outis/invalid-zero-guardian');
+                assert(guardian != get_contract_address(), 'outis/invalid-guardian');
                 self.escape_enabled.write(EscapeEnabled { is_enabled: true, security_period, expiry_period });
                 self.guardian.write(guardian);
             } else {
-                assert(escape_config.is_enabled, 'argent/escape-disabled');
+                assert(escape_config.is_enabled, 'outis/escape-disabled');
                 assert(
                     security_period == 0 && expiry_period == 0 && guardian == contract_address_const::<0>(),
-                    'argent/invalid-escape-params',
+                    'outis/invalid-escape-params',
                 );
                 self.escape_enabled.write(EscapeEnabled { is_enabled: false, security_period, expiry_period });
                 self.guardian.write(contract_address_const::<0>());
@@ -269,7 +269,7 @@ pub mod external_recovery_component {
         }
 
         fn assert_only_guardian(self: @ComponentState<TContractState>) {
-            assert(self.guardian.read() == get_caller_address(), 'argent/only-guardian');
+            assert(self.guardian.read() == get_caller_address(), 'outis/only-guardian');
         }
     }
 }

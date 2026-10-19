@@ -1,16 +1,16 @@
-use argent::linked_set::linked_set::{
+use outis::linked_set::linked_set::{
     LinkedSet, LinkedSetReadImpl, LinkedSetReadPrivateImpl, LinkedSetWriteImpl, LinkedSetWritePrivateImpl,
     MutableLinkedSetReadImpl,
 };
-use argent::multiowner_account::signer_storage_linked_set::SignerStorageValueLinkedSetConfig;
-use argent::signer::signer_signature::{SignerStorageValue, SignerTrait, SignerType};
+use outis::multiowner_account::signer_storage_linked_set::SignerStorageValueLinkedSetConfig;
+use outis::signer::signer_signature::{SignerStorageValue, SignerTrait, SignerType};
 use crate::StarknetKeyPair;
 use starknet::storage::{Mutable, StorageBase};
 
 #[starknet::component]
 pub mod LinkedSetMock {
-    use argent::linked_set::linked_set::LinkedSet;
-    use argent::signer::signer_signature::SignerStorageValue;
+    use outis::linked_set::linked_set::LinkedSet;
+    use outis::signer::signer_signature::SignerStorageValue;
 
     #[storage]
     pub struct Storage {

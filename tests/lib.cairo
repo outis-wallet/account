@@ -9,8 +9,8 @@ mod test_signatures;
 mod test_transaction_version;
 mod test_version;
 
-mod argent_account {
-    mod test_argent_account;
+mod outis_account {
+    mod test_outis_account;
     mod test_change_guardians;
     mod test_change_owners;
     mod test_escape;
@@ -28,7 +28,7 @@ mod multisig {
 }
 
 mod setup {
-    pub mod argent_account_setup;
+    pub mod outis_account_setup;
     pub mod multisig_test_setup;
     pub mod signers;
 }
@@ -40,12 +40,12 @@ mod webauthn {
 
 // Re-export the test setup functions to have them all available in one place
 use setup::{
-    argent_account_setup::{
-        ArgentAccountSetup, ArgentAccountWithoutGuardianSetup, ITestArgentAccountDispatcherTrait, initialize_account,
+    outis_account_setup::{
+        OutisAccountSetup, OutisAccountWithoutGuardianSetup, ITestOutisAccountDispatcherTrait, initialize_account,
         initialize_account_with_owners_and_guardians, initialize_account_without_guardian,
     },
     multisig_test_setup::{
-        ITestArgentMultisigDispatcherTrait, MultisigSetup, declare_multisig, initialize_multisig_m_of_n,
+        ITestOutisMultisigDispatcherTrait, MultisigSetup, declare_multisig, initialize_multisig_m_of_n,
     },
     signers::{
         Eip191KeyPair, Secp256k1KeyPair, Secp256r1KeyPair, SignerKeyPair, SignerKeyPairImpl, SignerKeyPairTestTrait,

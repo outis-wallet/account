@@ -23,7 +23,7 @@ describe("ArgentAccount: session basics", function () {
   const initialTime = 1710167933n;
 
   before(async () => {
-    sessionAccountClassHash = await manager.declareLocalContract("ArgentAccount");
+    sessionAccountClassHash = await manager.declareLocalContract("OutisAccount");
     mockDappContract = await manager.declareAndDeployContract("MockDapp");
   });
 
@@ -48,7 +48,7 @@ describe("ArgentAccount: session basics", function () {
 
     const { transaction_hash } = await accountWithDappSigner.execute(calls);
 
-    await account.waitForTransaction(transaction_hash);
+    await account.provider.waitForTransaction(transaction_hash);
     await mockDappContract.get_number(accountContract.address).should.eventually.equal(randomNumber);
   });
 
@@ -140,7 +140,7 @@ describe("ArgentAccount: session basics", function () {
 
     const { transaction_hash } = await accountWithDappSigner.execute(calls);
 
-    await account.waitForTransaction(transaction_hash);
+    await account.provider.waitForTransaction(transaction_hash);
     await mockDappContract.get_number(accountContract.address).should.eventually.equal(randomNumber);
   });
 
@@ -161,7 +161,7 @@ describe("ArgentAccount: session basics", function () {
 
     // non expired session
     await manager.setTime(expiresAt - 10800n);
-    await account.waitForTransaction(transaction_hash);
+    await account.provider.waitForTransaction(transaction_hash);
     await mockDappContract.get_number(accountContract.address).should.eventually.equal(randomNumber);
 
     // Expired session
@@ -183,7 +183,7 @@ describe("ArgentAccount: session basics", function () {
 
     const { transaction_hash } = await accountWithDappSigner.execute(calls);
 
-    await account.waitForTransaction(transaction_hash);
+    await account.provider.waitForTransaction(transaction_hash);
     await mockDappContract.get_number(accountContract.address).should.eventually.equal(randomNumber);
     // Revoke Session
     await accountContract.revoke_session(sessionHash);

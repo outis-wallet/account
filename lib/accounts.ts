@@ -14,7 +14,6 @@ import {
   Invocations,
   InvocationsSignerDetails,
   InvokeFunctionResponse,
-  Provider,
   RawCalldata,
   Signature,
   TransactionReceipt,
@@ -44,7 +43,7 @@ export class ArgentAccount extends Account {
       const { owner, guardian } = this.signer as ArgentSigner;
       const estimateSigner = new ArgentSigner(owner.estimateSigner, guardian?.estimateSigner);
       const estimateAccount = new Account({
-        provider: this as Provider,
+        provider: this.provider,
         address: this.address,
         signer: estimateSigner,
         cairoVersion: this.cairoVersion,
@@ -199,7 +198,7 @@ async function deployAccountInner(params: DeployAccountParams): Promise<ArgentWa
   const guardians = params.guardian ? [params.guardian] : params.guardians;
   const finalParams = {
     ...params,
-    classHash: params.classHash ?? (await manager.declareLocalContract("ArgentAccount")),
+    classHash: params.classHash ?? (await manager.declareLocalContract("OutisAccount")),
     salt: params.salt ?? num.toHex(randomStarknetKeyPair().privateKey),
     owners: owners ?? [randomStarknetKeyPair()],
     guardians: guardians ?? [],

@@ -1,4 +1,4 @@
-use argent::signer::signer_signature::SignerStorageValue;
+use outis::signer::signer_signature::SignerStorageValue;
 use core::starknet::storage_access::StorePacking;
 
 /// @notice Represents the type of escape in progress

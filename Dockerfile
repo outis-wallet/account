@@ -1,5 +1,5 @@
 # Use the base image
-FROM shardlabs/starknet-devnet-rs:0.6.0-seed0
+FROM shardlabs/starknet-devnet-rs:0.10.0-seed0
 
 # Expose port 5050
 EXPOSE 5050

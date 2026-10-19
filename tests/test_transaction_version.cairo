@@ -1,4 +1,4 @@
-use argent::utils::transaction_version::{
+use outis::utils::transaction_version::{
     assert_correct_declare_version, assert_correct_deploy_account_version, assert_correct_invoke_version,
 };
 const ESTIMATION_BASE_TX_VERSION: felt252 = 0x100000000000000000000000000000000;
@@ -11,7 +11,7 @@ fn test_assert_correct_invoke_version() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/invalid-tx-version',))]
+#[should_panic(expected: ('outis/invalid-tx-version',))]
 fn assert_invoke_version_invalid() {
     assert_correct_invoke_version(2);
 }
@@ -25,7 +25,7 @@ fn test_assert_correct_deploy_account_version() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/invalid-deploy-account-v',))]
+#[should_panic(expected: ('outis/invalid-deploy-account-v',))]
 fn assert_deploy_account_invalid() {
     assert_correct_deploy_account_version(2);
 }
@@ -39,7 +39,7 @@ fn test_assert_correct_declare_version() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/invalid-declare-version',))]
+#[should_panic(expected: ('outis/invalid-declare-version',))]
 fn assert_declare_version_invalid() {
     assert_correct_declare_version(1);
 }

@@ -1,6 +1,6 @@
-use argent::account::{SRC5_ACCOUNT_INTERFACE_ID, SRC5_ACCOUNT_INTERFACE_ID_OLD_1, SRC5_ACCOUNT_INTERFACE_ID_OLD_2};
-use argent::introspection::{ISRC5, ISRC5Legacy, SRC5_INTERFACE_ID, SRC5_INTERFACE_ID_OLD, src5_component};
-use argent::outside_execution::outside_execution::{
+use outis::account::{SRC5_ACCOUNT_INTERFACE_ID, SRC5_ACCOUNT_INTERFACE_ID_OLD_1, SRC5_ACCOUNT_INTERFACE_ID_OLD_2};
+use outis::introspection::{ISRC5, ISRC5Legacy, SRC5_INTERFACE_ID, SRC5_INTERFACE_ID_OLD, src5_component};
+use outis::outside_execution::outside_execution::{
     ERC165_OUTSIDE_EXECUTION_INTERFACE_ID_REV_0, ERC165_OUTSIDE_EXECUTION_INTERFACE_ID_REV_1,
 };
 
@@ -8,7 +8,7 @@ const UNSUPPORTED_INTERFACE_ID: felt252 = 0xffffffff;
 
 #[starknet::contract]
 pub mod SRC5Mock {
-    use argent::introspection::src5_component;
+    use outis::introspection::src5_component;
 
     component!(path: src5_component, storage: src5, event: SRC5Events);
     #[abi(embed_v0)]

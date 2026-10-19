@@ -12,7 +12,7 @@ describe("Gas griefing", function () {
 
     await manager.waitForTx(accountContract.trigger_escape_owner(randomStarknetKeyPair().compiledSigner));
     await expectExecutionRevert(
-      "argent/last-escape-too-recent",
+      "outis/last-escape-too-recent",
       accountContract.trigger_escape_owner(randomStarknetKeyPair().compiledSigner),
     );
   });
@@ -45,7 +45,7 @@ describe("Gas griefing", function () {
 
     expect(getMaxFeeWithoutTip(newResourceBounds) > MAX_ESCAPE_MAX_FEE_STRK).to.be.true;
     await expectExecutionRevert(
-      "argent/max-fee-too-high",
+      "outis/max-fee-too-high",
       account.execute(accountContract.populateTransaction.trigger_escape_owner(compiledSigner), {
         resourceBounds: newResourceBounds,
         tip: 0,
@@ -108,7 +108,7 @@ describe("Gas griefing", function () {
     expect(tipInStrkPerL2Gas * estimate.resourceBounds.l2_gas.max_amount > maxEscapeTip).to.be.true;
 
     await expectExecutionRevert(
-      "argent/tip-too-high",
+      "outis/tip-too-high",
       account.execute(accountContract.populateTransaction.trigger_escape_owner(compiledSigner), {
         tip: tipInStrkPerL2Gas,
       }),
@@ -119,7 +119,7 @@ describe("Gas griefing", function () {
     const { account, accountContract, guardian } = await deployAccount();
     account.signer = new ArgentSigner(guardian);
     await expectExecutionRevert(
-      "argent/invalid-da-mode",
+      "outis/invalid-da-mode",
       account.execute(
         accountContract.populateTransaction.trigger_escape_owner(randomStarknetKeyPair().compiledSigner),
         {
@@ -128,7 +128,7 @@ describe("Gas griefing", function () {
       ),
     );
     await expectExecutionRevert(
-      "argent/invalid-da-mode",
+      "outis/invalid-da-mode",
       account.execute(
         accountContract.populateTransaction.trigger_escape_owner(randomStarknetKeyPair().compiledSigner),
         {
@@ -143,7 +143,7 @@ describe("Gas griefing", function () {
     const { account, accountContract, guardian } = await deployAccount();
     account.signer = new ArgentSigner(guardian);
     await expectExecutionRevert(
-      "argent/invalid-deployment-data",
+      "outis/invalid-deployment-data",
       account.execute(
         accountContract.populateTransaction.trigger_escape_owner(randomStarknetKeyPair().compiledSigner),
         {

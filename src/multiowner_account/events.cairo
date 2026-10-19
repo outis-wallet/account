@@ -1,4 +1,4 @@
-use argent::signer::signer_signature::Signer;
+use outis::signer::signer_signature::Signer;
 
 /// @notice Deprecated: Use AccountCreatedGuid instead
 /// @dev This is only emitted for the owner and then guardian when they of type SignerType::Starknet

@@ -8,7 +8,7 @@ describe("Deploy UDC", function () {
   let guardian: StarknetKeyPair;
 
   before(async () => {
-    argentAccountClassHash = await manager.declareLocalContract("ArgentAccount");
+    argentAccountClassHash = await manager.declareLocalContract("OutisAccount");
     owner = randomStarknetKeyPair();
     guardian = randomStarknetKeyPair();
   });

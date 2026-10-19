@@ -142,14 +142,14 @@ describe("ArgentAccount: testing 0.2.3.1 upgrade", function () {
       const accountV3 = getAccountV3(account);
       mockDapp.providerOrAccount = accountV3;
       // Check the account is in the wrong state
-      const wrongGuids = await account.callContract({
+      const wrongGuids = await account.provider.callContract({
         contractAddress: account.address,
         entrypoint: "get_owners_guids",
       });
       // Since we have to do a raw call, we have the unparsed value returned
       expect(wrongGuids.length).to.equal(1);
       expect(wrongGuids[0]).to.equal("0x0");
-      await expectRevertWithErrorMessage("argent/no-single-stark-owner", mockDapp.set_number(randomNumber));
+      await expectRevertWithErrorMessage("outis/no-single-stark-owner", mockDapp.set_number(randomNumber));
 
       const { account: otherAccount } = await deployAccount({ fundingAmount: 5e16 });
       // Recover the signer
@@ -186,7 +186,7 @@ describe("ArgentAccount: testing 0.2.3.1 upgrade", function () {
       await manager.ensureSuccess(otherAccount.execute(callRecovery));
       expect(BigInt(await manager.getClassHashAt(account.address))).to.equal(BigInt(argentAccountClassHash));
       // Trying to recover the signer a second time
-      await otherAccount.execute(callRecovery).should.be.rejectedWith("argent/no-signer-to-recover");
+      await otherAccount.execute(callRecovery).should.be.rejectedWith("outis/no-signer-to-recover");
     });
 
     it("Shouldn't be possible to recover the signer an account that was correctly upgraded", async function () {
@@ -202,7 +202,7 @@ describe("ArgentAccount: testing 0.2.3.1 upgrade", function () {
           entrypoint: "recovery_from_legacy_upgrade",
           calldata: [],
         })
-        .should.be.rejectedWith("argent/no-signer-to-recover");
+        .should.be.rejectedWith("outis/no-signer-to-recover");
     });
   });
 });

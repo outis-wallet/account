@@ -1,4 +1,4 @@
-use argent::utils::asserts;
+use outis::utils::asserts;
 use snforge_std::{start_cheat_caller_address_global, test_address};
 use starknet::account::Call;
 
@@ -9,7 +9,7 @@ fn test_assert_only_self() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/only-self',))]
+#[should_panic(expected: ('outis/only-self',))]
 fn test_assert_only_self_panic() {
     start_cheat_caller_address_global(42.try_into().unwrap());
     asserts::assert_only_self();
@@ -41,7 +41,7 @@ fn test_no_self_call_2() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/no-multicall-to-self',))]
+#[should_panic(expected: ('outis/no-multicall-to-self',))]
 fn test_no_self_call_invalid() {
     let self = 42.try_into().unwrap();
     start_cheat_caller_address_global(self);
@@ -50,7 +50,7 @@ fn test_no_self_call_invalid() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/no-multicall-to-self',))]
+#[should_panic(expected: ('outis/no-multicall-to-self',))]
 fn test_no_self_call_invalid_2() {
     let self = 42.try_into().unwrap();
     start_cheat_caller_address_global(self);

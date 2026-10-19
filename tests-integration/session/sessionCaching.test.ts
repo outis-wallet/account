@@ -23,7 +23,7 @@ describe("Session Account: execute caching", function () {
   const initialTime = 1710167933n;
 
   before(async () => {
-    argentAccountClassHash = await manager.declareLocalContract("ArgentAccount");
+    argentAccountClassHash = await manager.declareLocalContract("OutisAccount");
     mockDappContract = await manager.declareAndDeployContract("MockDapp");
   });
 
@@ -56,18 +56,18 @@ describe("Session Account: execute caching", function () {
         .is_session_authorization_cached(sessionHash, owner.guid, guardian.guid)
         .should.eventually.be.equal(useCaching);
 
-      await account.waitForTransaction(transaction_hash);
+      await account.provider.waitForTransaction(transaction_hash);
       await mockDappContract.get_number(accountContract.address).should.eventually.equal(randomNumber);
 
       const calls2 = [mockDappContract.populateTransaction.set_number(randomNumber + 1n)];
 
       const { transaction_hash: tx2 } = await accountWithDappSigner.execute(calls2);
 
-      await account.waitForTransaction(tx2);
+      await account.provider.waitForTransaction(tx2);
       await mockDappContract.get_number(accountContract.address).should.eventually.equal(randomNumber + 1n);
     });
 
-    it(`Fail with 'argent/invalid-signature-len' if more than owner + guardian signed session (caching: ${useCaching})`, async function () {
+    it(`Fail with 'outis/invalid-signature-len' if more than owner + guardian signed session (caching: ${useCaching})`, async function () {
       const { account, guardian, accountContract, owner } = await deployAccount({ classHash: argentAccountClassHash });
 
       const { accountWithDappSigner, sessionHash, authorizationSignature, sessionRequest, dappService } =
@@ -92,7 +92,7 @@ describe("Session Account: execute caching", function () {
       sessionToken.sessionAuthorization = [...authorizationSignature, "0x0"];
       if (useCaching) {
         const { transaction_hash } = await accountWithDappSigner.execute(calls);
-        await account.waitForTransaction(transaction_hash);
+        await account.provider.waitForTransaction(transaction_hash);
         await accountContract.is_session_authorization_cached(sessionHash, owner.guid, guardian.guid).should.eventually
           .be.true;
         await expectRevertWithErrorMessage(
@@ -101,7 +101,7 @@ describe("Session Account: execute caching", function () {
         );
       } else {
         await expectRevertWithErrorMessage(
-          "argent/invalid-signature-len",
+          "outis/invalid-signature-len",
           executeWithCustomSig(accountWithDappSigner, calls, sessionToken.compileSignature()),
         );
       }
@@ -154,7 +154,7 @@ describe("Session Account: execute caching", function () {
 
       if (useCaching) {
         const { transaction_hash } = await accountWithDappSigner.execute(calls);
-        await account.waitForTransaction(transaction_hash);
+        await account.provider.waitForTransaction(transaction_hash);
         await accountContract.is_session_authorization_cached(sessionHash, owner.guid, guardian.guid).should.eventually
           .be.true;
       }
@@ -272,7 +272,7 @@ describe("Session Account: execute caching", function () {
     await accountContract.is_session_authorization_cached(sessionHash, owner.guid, guardian.guid).should.eventually.be
       .false;
     const { transaction_hash } = await accountWithDappSigner.execute(calls);
-    await account.waitForTransaction(transaction_hash);
+    await account.provider.waitForTransaction(transaction_hash);
 
     await accountContract
       .is_session_authorization_cached(sessionHash, owner.guid, guardian.guid)
@@ -310,7 +310,7 @@ describe("Session Account: execute caching", function () {
     });
 
     const { transaction_hash } = await accountWithDappSigner.execute(calls);
-    await account.waitForTransaction(transaction_hash);
+    await account.provider.waitForTransaction(transaction_hash);
 
     // check that the session is cached
     await accountContract.is_session_authorization_cached(sessionHash, owner.guid, guardian.guid).should.eventually.be
@@ -345,7 +345,8 @@ describe("Session Account: execute caching", function () {
     await expectRevertWithErrorMessage("session/owner-key-mismatch", accountWithDappSigner.execute([]));
   });
 
-  describe("Session caching with legacy account", function () {
+  // Not applicable to Outis: these upgrade an Argent 0.4.0 account, which the name check refuses.
+  describe.skip("Session caching with legacy account", function () {
     it("Caching is unaffected between contract upgrades", async function () {
       const { account, accountContract, guardian, owner } = await deployAccount({
         classHash: await manager.declareArtifactAccountContract("0.4.0"),

@@ -26,7 +26,7 @@ describe("ArgentAccount: multicall", function () {
     const recipientInitialBalance = await manager.tokens.strkBalance(recipient);
     strkContract.providerOrAccount = account;
     const { transaction_hash } = await strkContract.transfer(recipient, amount);
-    await account.waitForTransaction(transaction_hash);
+    await account.provider.waitForTransaction(transaction_hash);
 
     const senderFinalBalance = await manager.tokens.strkBalance(account.address);
     const recipientFinalBalance = await manager.tokens.strkBalance(recipient);
@@ -57,7 +57,7 @@ describe("ArgentAccount: multicall", function () {
       strkContract.populateTransaction.transfer(recipient1, amount1),
       strkContract.populateTransaction.transfer(recipient2, amount2),
     ]);
-    await account.waitForTransaction(transferTxHash);
+    await account.provider.waitForTransaction(transferTxHash);
 
     const senderFinalBalance = await manager.tokens.strkBalance(account.address);
     const recipient1FinalBalance = await manager.tokens.strkBalance(recipient1);
@@ -82,7 +82,7 @@ describe("ArgentAccount: multicall", function () {
       strkContract.populateTransaction.transfer(recipient1, amount1),
       mockDappContract.populateTransaction.set_number(randomNumber),
     ]);
-    await account.waitForTransaction(transferTxHash);
+    await account.provider.waitForTransaction(transferTxHash);
 
     const senderFinalBalance = await manager.tokens.strkBalance(account.address);
     const recipient1FinalBalance = await manager.tokens.strkBalance(recipient1);
@@ -104,7 +104,7 @@ describe("ArgentAccount: multicall", function () {
       mockDappContract.populateTransaction.increase_number(2),
       mockDappContract.populateTransaction.double_number(),
     ]);
-    await account.waitForTransaction(transferTxHash);
+    await account.provider.waitForTransaction(transferTxHash);
 
     const finalNumber = await mockDappContract.get_number(account.address);
     expect(finalNumber).to.equal(6n); // (1 + 2) * 2
@@ -117,7 +117,7 @@ describe("ArgentAccount: multicall", function () {
     const newOwner = randomStarknetKeyPair();
 
     await expectRevertWithErrorMessage(
-      "argent/no-multicall-to-self",
+      "outis/no-multicall-to-self",
       account.execute([
         strkContract.populateTransaction.transfer(recipient, amount),
         accountContract.populateTransaction.trigger_escape_owner(newOwner.compiledSigner),

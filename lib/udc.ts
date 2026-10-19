@@ -15,6 +15,6 @@ export async function deployContractUDC(
   // deployContract uses the UDC
   const { addresses, calls } = await defaultDeployer.buildDeployerCall(udcPayload, deployer.address);
   const { transaction_hash } = await deployer.execute(calls);
-  await deployer.waitForTransaction(transaction_hash);
+  await deployer.provider.waitForTransaction(transaction_hash);
   return { contractAddress: addresses[0], transactionHash: transaction_hash };
 }

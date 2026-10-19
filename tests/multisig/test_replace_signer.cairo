@@ -1,8 +1,8 @@
-use argent::multiowner_account::events::SignerLinked;
-use argent::multisig_account::signer_manager::{OwnerAddedGuid, OwnerRemovedGuid, signer_manager_component};
-use argent::signer::signer_signature::{SignerTrait};
+use outis::multiowner_account::events::SignerLinked;
+use outis::multisig_account::signer_manager::{OwnerAddedGuid, OwnerRemovedGuid, signer_manager_component};
+use outis::signer::signer_signature::{SignerTrait};
 use crate::{
-    ITestArgentMultisigDispatcherTrait, MultisigSetup, SignerKeyPairImpl, StarknetKeyPair, initialize_multisig_m_of_n,
+    ITestOutisMultisigDispatcherTrait, MultisigSetup, SignerKeyPairImpl, StarknetKeyPair, initialize_multisig_m_of_n,
 };
 use snforge_std::{EventSpyAssertionsTrait, EventSpyTrait, spy_events};
 
@@ -133,7 +133,7 @@ fn replace_invalid_signer_with_the_same_signer() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/replace-same-signer',))]
+#[should_panic(expected: ('outis/replace-same-signer',))]
 fn replace_valid_signer_with_same() {
     let MultisigSetup { multisig, signers, .. } = initialize_multisig_m_of_n(1, 1);
     multisig.replace_signer(signers[0].signer(), signers[0].signer());

@@ -1,9 +1,9 @@
-use argent::multiowner_account::{argent_account::ArgentAccount::{MAX_ESCAPE_TIP_STRK, TIME_BETWEEN_TWO_ESCAPES}};
-use argent::signer::signer_signature::Signer;
-use argent::utils::serialization::serialize;
+use outis::multiowner_account::{outis_account::OutisAccount::{MAX_ESCAPE_TIP_STRK, TIME_BETWEEN_TWO_ESCAPES}};
+use outis::signer::signer_signature::Signer;
+use outis::utils::serialization::serialize;
 use core::num::traits::Zero;
 use crate::{
-    ArgentAccountSetup, ITestArgentAccountDispatcherTrait, SignerKeyPairImpl, StarknetKeyPair, initialize_account,
+    OutisAccountSetup, ITestOutisAccountDispatcherTrait, SignerKeyPairImpl, StarknetKeyPair, initialize_account,
 };
 use snforge_std::{
     generate_random_felt, start_cheat_block_timestamp_global, start_cheat_caller_address_global,
@@ -13,35 +13,35 @@ use snforge_std::{
 use starknet::{ResourcesBounds, account::Call};
 
 #[test]
-#[should_panic(expected: ('argent/invalid-tx-version',))]
+#[should_panic(expected: ('outis/invalid-tx-version',))]
 fn check_transaction_version_on_execute() {
-    let ArgentAccountSetup { account, .. } = initialize_account();
+    let OutisAccountSetup { account, .. } = initialize_account();
     start_cheat_caller_address_global(Zero::zero());
     start_cheat_transaction_version_global(32);
     account.__execute__(array![]);
 }
 
 #[test]
-#[should_panic(expected: ('argent/invalid-tx-version',))]
+#[should_panic(expected: ('outis/invalid-tx-version',))]
 fn check_transaction_version_on_validate() {
-    let ArgentAccountSetup { account, .. } = initialize_account();
+    let OutisAccountSetup { account, .. } = initialize_account();
     start_cheat_caller_address_global(Zero::zero());
     start_cheat_transaction_version_global(32);
     account.__validate__(array![]);
 }
 
 #[test]
-#[should_panic(expected: ('argent/non-null-caller',))]
+#[should_panic(expected: ('outis/non-null-caller',))]
 fn cant_call_validate() {
-    let ArgentAccountSetup { account, .. } = initialize_account();
+    let OutisAccountSetup { account, .. } = initialize_account();
     start_cheat_caller_address_global(42.try_into().unwrap());
     account.__validate__(array![]);
 }
 
 #[test]
-#[should_panic(expected: ('argent/tip-too-high',))]
+#[should_panic(expected: ('outis/tip-too-high',))]
 fn test_max_tip() {
-    let ArgentAccountSetup { account, owners, .. } = initialize_account();
+    let OutisAccountSetup { account, owners, .. } = initialize_account();
     let owner = owners[0];
 
     start_cheat_caller_address_global(Zero::zero());
@@ -73,7 +73,7 @@ fn test_max_tip() {
 
 #[test]
 fn test_max_tip_on_limit() {
-    let ArgentAccountSetup { account, owners, .. } = initialize_account();
+    let OutisAccountSetup { account, owners, .. } = initialize_account();
     let owner = owners[0];
 
     start_cheat_caller_address_global(Zero::zero());

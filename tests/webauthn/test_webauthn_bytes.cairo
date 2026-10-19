@@ -1,4 +1,4 @@
-use argent::utils::bytes::{bytes_to_u32s, eight_words_to_bytes, u256_to_u8s, u32_to_bytes};
+use outis::utils::bytes::{bytes_to_u32s, eight_words_to_bytes, u256_to_u8s, u32_to_bytes};
 
 #[test]
 fn convert_8_words_to_bytes() {

@@ -1,4 +1,4 @@
-use argent::account::Version;
+use outis::account::Version;
 
 #[test]
 fn test_version_lt_simple_version_incr() {

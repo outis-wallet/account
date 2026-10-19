@@ -1,6 +1,6 @@
-use argent::linked_set::linked_set::LinkedSetConfig;
+use outis::linked_set::linked_set::LinkedSetConfig;
 
-use argent::signer::signer_signature::{Signer, SignerSignature};
+use outis::signer::signer_signature::{Signer, SignerSignature};
 use starknet::storage::{StoragePath, StoragePointerReadAccess};
 
 #[starknet::interface]
@@ -96,17 +96,17 @@ impl SignerGuidLinkedSetConfig of LinkedSetConfig<felt252> {
 /// adding or removing signers, changing the threshold, etc
 #[starknet::component]
 pub mod signer_manager_component {
-    use argent::linked_set::linked_set::{
+    use outis::linked_set::linked_set::{
         IAddEndMarker, LinkedSet, LinkedSetReadImpl, LinkedSetWriteImpl, MutableLinkedSetReadImpl,
     };
-    use argent::multiowner_account::events::SignerLinked;
-    use argent::multisig_account::signer_manager::{ISignerManager, OwnerAddedGuid, OwnerRemovedGuid, ThresholdUpdated};
-    use argent::signer::{
+    use outis::multiowner_account::events::SignerLinked;
+    use outis::multisig_account::signer_manager::{ISignerManager, OwnerAddedGuid, OwnerRemovedGuid, ThresholdUpdated};
+    use outis::signer::{
         signer_signature::{
             Signer, SignerSignature, SignerSignatureTrait, SignerSpanTrait, SignerTrait, starknet_signer_from_pubkey,
         },
     };
-    use argent::utils::{asserts::assert_only_self, transaction_version::is_estimate_transaction};
+    use outis::utils::{asserts::assert_only_self, transaction_version::is_estimate_transaction};
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use super::SignerGuidLinkedSetConfig;
 
@@ -134,7 +134,7 @@ pub mod signer_manager_component {
     > of ISignerManager<ComponentState<TContractState>> {
         fn change_threshold(ref self: ComponentState<TContractState>, new_threshold: usize) {
             assert_only_self();
-            assert(new_threshold != self.threshold.read(), 'argent/same-threshold');
+            assert(new_threshold != self.threshold.read(), 'outis/same-threshold');
             let new_signers_count = self.signer_list.len();
 
             self.assert_valid_threshold_and_signers_count(new_threshold, new_signers_count);
@@ -191,7 +191,7 @@ pub mod signer_manager_component {
             let signer_to_remove_guid = signer_to_remove.into_guid();
             self.signer_list.remove(signer_to_remove_guid);
             let signer_to_add_guid = self.signer_list.insert(signer_to_add.into_guid());
-            assert(signer_to_remove_guid != signer_to_add_guid, 'argent/replace-same-signer');
+            assert(signer_to_remove_guid != signer_to_add_guid, 'outis/replace-same-signer');
 
             self.emit(OwnerRemovedGuid { removed_owner_guid: signer_to_remove_guid });
             self.emit(OwnerAddedGuid { new_owner_guid: signer_to_add_guid });
@@ -218,7 +218,7 @@ pub mod signer_manager_component {
             self: @ComponentState<TContractState>, hash: felt252, signer_signature: SignerSignature,
         ) -> bool {
             let is_signer = self.signer_list.contains(signer_signature.signer().into_guid());
-            assert(is_signer, 'argent/not-a-signer');
+            assert(is_signer, 'outis/not-a-signer');
             signer_signature.is_valid_signature(hash)
         }
     }
@@ -228,7 +228,7 @@ pub mod signer_manager_component {
         TContractState, +HasComponent<TContractState>, +Drop<TContractState>,
     > of ISignerManagerInternal<TContractState> {
         fn initialize(ref self: ComponentState<TContractState>, threshold: usize, signers: Array<Signer>) {
-            assert(self.threshold.read() == 0, 'argent/already-initialized');
+            assert(self.threshold.read() == 0, 'outis/already-initialized');
 
             let new_signers_count = signers.len();
             self.assert_valid_threshold_and_signers_count(threshold, new_signers_count);
@@ -249,10 +249,10 @@ pub mod signer_manager_component {
         fn assert_valid_threshold_and_signers_count(
             self: @ComponentState<TContractState>, threshold: usize, signers_len: usize,
         ) {
-            assert(threshold != 0, 'argent/invalid-threshold');
-            assert(signers_len != 0, 'argent/invalid-signers-len');
-            assert(signers_len <= MAX_SIGNERS_COUNT, 'argent/invalid-signers-len');
-            assert(threshold <= signers_len, 'argent/bad-threshold');
+            assert(threshold != 0, 'outis/invalid-threshold');
+            assert(signers_len != 0, 'outis/invalid-signers-len');
+            assert(signers_len <= MAX_SIGNERS_COUNT, 'outis/invalid-signers-len');
+            assert(threshold <= signers_len, 'outis/bad-threshold');
         }
 
         fn assert_valid_storage(self: @ComponentState<TContractState>) {
@@ -265,7 +265,7 @@ pub mod signer_manager_component {
             threshold: u32,
             mut signer_signatures: Array<SignerSignature>,
         ) -> bool {
-            assert(signer_signatures.len() == threshold, 'argent/signature-invalid-length');
+            assert(signer_signatures.len() == threshold, 'outis/signature-invalid-length');
             let mut last_signer: u256 = 0;
             loop {
                 let signer_sig = match signer_signatures.pop_front() {
@@ -273,9 +273,9 @@ pub mod signer_manager_component {
                     Option::None => { break true; },
                 };
                 let signer_guid = signer_sig.signer().into_guid();
-                assert(self.is_signer_guid(signer_guid), 'argent/not-a-signer');
+                assert(self.is_signer_guid(signer_guid), 'outis/not-a-signer');
                 let signer_uint: u256 = signer_guid.into();
-                assert(signer_uint > last_signer, 'argent/signatures-not-sorted');
+                assert(signer_uint > last_signer, 'outis/signatures-not-sorted');
                 last_signer = signer_uint;
                 if !signer_sig.is_valid_signature(hash) && !is_estimate_transaction() {
                     break false;

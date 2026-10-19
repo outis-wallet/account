@@ -1,5 +1,5 @@
-use argent::session::session::Session;
-use argent::{
+use outis::session::session::Session;
+use outis::{
     offchain_message::{
         IMerkleLeafHash, IOffChainMessageHashRev1, IStructHashRev1, StarknetDomain, StructHashStarknetDomain,
         get_message_hash_rev_1_with_precalc,

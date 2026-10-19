@@ -1,22 +1,22 @@
 #[starknet::contract(account)]
-mod ArgentMultisigAccount {
-    use argent::account::{IAccount, IArgentAccount, IArgentAccountDispatcher, IArgentAccountDispatcherTrait, Version};
-    use argent::introspection::src5_component;
-    use argent::multisig_account::external_recovery::{IExternalRecoveryCallback, external_recovery_component};
-    use argent::multisig_account::signer_manager::{
+mod OutisMultisigAccount {
+    use outis::account::{IAccount, IOutisAccount, IOutisAccountDispatcher, IOutisAccountDispatcherTrait, Version};
+    use outis::introspection::src5_component;
+    use outis::multisig_account::external_recovery::{IExternalRecoveryCallback, external_recovery_component};
+    use outis::multisig_account::signer_manager::{
         signer_manager_component, signer_manager_component::SignerManagerInternalImpl,
     };
-    use argent::multisig_account::upgrade_migration::{
+    use outis::multisig_account::upgrade_migration::{
         upgrade_migration_component, upgrade_migration_component::IUpgradeMigrationInternal,
     };
-    use argent::outside_execution::{
+    use outis::outside_execution::{
         outside_execution::IOutsideExecutionCallback, outside_execution::outside_execution_component,
     };
-    use argent::signer::signer_signature::{Signer, SignerSignature};
-    use argent::upgrade::{
+    use outis::signer::signer_signature::{Signer, SignerSignature};
+    use outis::upgrade::{
         IUpgradableCallback, IUpgradableCallbackOld, upgrade_component, upgrade_component::UpgradableInternalImpl,
     };
-    use argent::utils::{
+    use outis::utils::{
         asserts::{assert_no_self_call, assert_only_protocol, assert_only_self},
         calls::{execute_multicall, execute_multicall_with_result}, serialization::full_deserialize,
         transaction_version::{assert_correct_deploy_account_version, assert_correct_invoke_version},
@@ -25,7 +25,7 @@ mod ArgentMultisigAccount {
     use starknet::storage::StoragePointerReadAccess;
     use starknet::{ClassHash, VALIDATED, account::Call, get_contract_address, get_execution_info, get_tx_info};
 
-    const NAME: felt252 = 'ArgentMultisig';
+    const NAME: felt252 = 'OutisMultisig';
     const VERSION: Version = Version { major: 0, minor: 5, patch: 0 };
 
     // Signer Management
@@ -114,8 +114,8 @@ mod ArgentMultisigAccount {
             let tx_info = exec_info.tx_info;
             assert_only_protocol(exec_info.caller_address);
             assert_correct_invoke_version(tx_info.version);
-            assert(tx_info.paymaster_data.is_empty(), 'argent/unsupported-paymaster');
-            assert(tx_info.account_deployment_data.is_empty(), 'argent/invalid-deployment-data');
+            assert(tx_info.paymaster_data.is_empty(), 'outis/unsupported-paymaster');
+            assert(tx_info.account_deployment_data.is_empty(), 'outis/invalid-deployment-data');
             self.assert_valid_calls(calls.span());
             self.assert_valid_signature(tx_info.transaction_hash, tx_info.signature);
             VALIDATED
@@ -152,9 +152,9 @@ mod ArgentMultisigAccount {
     }
 
     #[abi(embed_v0)]
-    impl ArgentAccountImpl of IArgentAccount<ContractState> {
+    impl OutisAccountImpl of IOutisAccount<ContractState> {
         fn __validate_declare__(self: @ContractState, class_hash: felt252) -> felt252 {
-            core::panic_with_felt252('argent/declare-not-available') // Not implemented yet
+            core::panic_with_felt252('outis/declare-not-available') // Not implemented yet
         }
 
         fn __validate_deploy__(
@@ -166,7 +166,7 @@ mod ArgentMultisigAccount {
         ) -> felt252 {
             let tx_info = get_tx_info();
             assert_correct_deploy_account_version(tx_info.version);
-            assert(tx_info.paymaster_data.is_empty(), 'argent/unsupported-paymaster');
+            assert(tx_info.paymaster_data.is_empty(), 'outis/unsupported-paymaster');
             // only 1 signer needed to deploy
             let is_valid = self
                 .signer_manager
@@ -175,7 +175,7 @@ mod ArgentMultisigAccount {
                     threshold: 1,
                     signer_signatures: parse_signature_array(tx_info.signature),
                 );
-            assert(is_valid, 'argent/invalid-signature');
+            assert(is_valid, 'outis/invalid-signature');
             VALIDATED
         }
 
@@ -219,7 +219,7 @@ mod ArgentMultisigAccount {
         fn execute_after_upgrade(ref self: ContractState, data: Array<felt252>) -> Array<felt252> {
             assert_only_self();
             self.upgrade_migration.migrate_from_before_0_2_0();
-            assert(data.len() == 0, 'argent/unexpected-data');
+            assert(data.len() == 0, 'outis/unexpected-data');
             array![]
         }
     }
@@ -231,17 +231,17 @@ mod ArgentMultisigAccount {
             assert_only_self();
 
             // Downgrade check
-            let argent_dispatcher = IArgentAccountDispatcher { contract_address: get_contract_address() };
-            assert(argent_dispatcher.get_name() == self.get_name(), 'argent/invalid-name');
-            let previous_version = argent_dispatcher.get_version();
-            assert(previous_version >= Version { major: 0, minor: 2, patch: 0 }, 'argent/invalid-from-version');
-            assert(previous_version < self.get_version(), 'argent/downgrade-not-allowed');
+            let outis_dispatcher = IOutisAccountDispatcher { contract_address: get_contract_address() };
+            assert(outis_dispatcher.get_name() == self.get_name(), 'outis/invalid-name');
+            let previous_version = outis_dispatcher.get_version();
+            assert(previous_version >= Version { major: 0, minor: 2, patch: 0 }, 'outis/invalid-from-version');
+            assert(previous_version < self.get_version(), 'outis/downgrade-not-allowed');
 
             self.upgrade.complete_upgrade(new_implementation);
 
             self.upgrade_migration.migrate_from_0_2_0();
 
-            assert(data.len() == 0, 'argent/unexpected-data');
+            assert(data.len() == 0, 'outis/unexpected-data');
         }
     }
 
@@ -253,8 +253,8 @@ mod ArgentMultisigAccount {
                 let call = calls.at(0);
                 if *call.to == account_address {
                     // This should only be called after an upgrade, never directly
-                    assert(*call.selector != selector!("execute_after_upgrade"), 'argent/forbidden-call');
-                    assert(*call.selector != selector!("perform_upgrade"), 'argent/forbidden-call');
+                    assert(*call.selector != selector!("execute_after_upgrade"), 'outis/forbidden-call');
+                    assert(*call.selector != selector!("perform_upgrade"), 'outis/forbidden-call');
                 }
             } else {
                 // Make sure no call is to the account. We don't have any good reason to perform many calls to the
@@ -271,13 +271,13 @@ mod ArgentMultisigAccount {
                     threshold: self.signer_manager.threshold.read(),
                     signer_signatures: parse_signature_array(raw_signature),
                 );
-            assert(valid, 'argent/invalid-signature');
+            assert(valid, 'outis/invalid-signature');
         }
     }
 
     #[must_use]
     fn parse_signature_array(raw_signature: Span<felt252>) -> Array<SignerSignature> {
-        full_deserialize(raw_signature).expect('argent/invalid-signature-format')
+        full_deserialize(raw_signature).expect('outis/invalid-signature-format')
     }
 }
 

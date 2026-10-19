@@ -1,8 +1,8 @@
-use argent::multiowner_account::events::SignerLinked;
-use argent::multisig_account::signer_manager::{OwnerAddedGuid, ThresholdUpdated, signer_manager_component};
-use argent::signer::signer_signature::{SignerTrait};
+use outis::multiowner_account::events::SignerLinked;
+use outis::multisig_account::signer_manager::{OwnerAddedGuid, ThresholdUpdated, signer_manager_component};
+use outis::signer::signer_signature::{SignerTrait};
 use crate::{
-    ITestArgentMultisigDispatcherTrait, MultisigSetup, SignerKeyPairImpl, StarknetKeyPair, initialize_multisig_m_of_n,
+    ITestOutisMultisigDispatcherTrait, MultisigSetup, SignerKeyPairImpl, StarknetKeyPair, initialize_multisig_m_of_n,
 };
 use snforge_std::{EventSpyAssertionsTrait, EventSpyTrait, spy_events};
 
@@ -53,7 +53,7 @@ fn add_signer_already_in_list() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/invalid-threshold',))]
+#[should_panic(expected: ('outis/invalid-threshold',))]
 fn add_signer_zero_threshold() {
     // init
     let MultisigSetup { multisig, .. } = initialize_multisig_m_of_n(1, 1);
@@ -64,7 +64,7 @@ fn add_signer_zero_threshold() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/bad-threshold',))]
+#[should_panic(expected: ('outis/bad-threshold',))]
 fn add_signer_excessive_threshold() {
     // init
     let MultisigSetup { multisig, .. } = initialize_multisig_m_of_n(1, 1);

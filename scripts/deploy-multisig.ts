@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { deployer, deployMultisig, manager } from "../lib";
 
-const multisigClassHash = await manager.declareLocalContract("ArgentMultisigAccount", true);
+const multisigClassHash = await manager.declareLocalContract("OutisMultisigAccount", true);
 console.log("ArgentMultisig class hash:", multisigClassHash);
 const mockDappClassHash = await manager.declareLocalContract("MockDapp", true);
 console.log("MockDapp class hash:", mockDappClassHash);

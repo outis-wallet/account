@@ -15,10 +15,12 @@ import {
 import { deployer } from "./accounts";
 import { WithDevnet } from "./devnet";
 
-export const contractsFolder = "./target/release/argent_";
+export const contractsFolder = "./target/release/outis_";
 export const fixturesFolder = "./tests-integration/fixtures/argent_";
 const artifactsFolder = "./deployments/artifacts";
-const cacheClassHashFilepath = "./dist/classHashCache.json";
+// Named for the compiled class hash it holds, Blake2s since Starknet 0.14.1: a cache of the older
+// Poseidon hashes, from before, is not read.
+const cacheClassHashFilepath = "./dist/classHashCache-blake.json";
 
 export const WithContracts = <T extends ReturnType<typeof WithDevnet>>(Base: T) =>
   class extends Base {

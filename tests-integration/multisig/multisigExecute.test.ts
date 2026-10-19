@@ -74,12 +74,12 @@ describe("ArgentMultisig: Execute", function () {
       mockDappContract.populateTransaction.increase_number(40),
     ]);
 
-    await account.waitForTransaction(calls.transaction_hash);
+    await account.provider.waitForTransaction(calls.transaction_hash);
 
     await mockDappContract.get_number(account.address).should.eventually.equal(42n);
   });
 
-  it("Expect 'argent/signatures-not-sorted' when signed tx is given in the wrong order (signer_list > 1, threshold > 1)", async function () {
+  it("Expect 'outis/signatures-not-sorted' when signed tx is given in the wrong order (signer_list > 1, threshold > 1)", async function () {
     const { account, keys } = await deployMultisig({ threshold: 3, signersLength: 5 });
 
     mockDappContract.providerOrAccount = account;
@@ -88,10 +88,10 @@ describe("ArgentMultisig: Execute", function () {
     const wrongSignerOrder = [keys[1], keys[3], keys[0]];
     account.signer = new MultisigSigner(wrongSignerOrder);
 
-    await expectRevertWithErrorMessage("argent/signatures-not-sorted", mockDappContract.set_number(randomNumber));
+    await expectRevertWithErrorMessage("outis/signatures-not-sorted", mockDappContract.set_number(randomNumber));
   });
 
-  it("Expect 'argent/signatures-not-sorted' when tx is signed by one owner twice (signer_list > 1, threshold > 1)", async function () {
+  it("Expect 'outis/signatures-not-sorted' when tx is signed by one owner twice (signer_list > 1, threshold > 1)", async function () {
     const { account, keys } = await deployMultisig({ threshold: 3, signersLength: 5 });
 
     mockDappContract.providerOrAccount = account;
@@ -100,6 +100,6 @@ describe("ArgentMultisig: Execute", function () {
     const repeatedSigners = [keys[0], keys[0], keys[1]];
     account.signer = new MultisigSigner(repeatedSigners);
 
-    await expectRevertWithErrorMessage("argent/signatures-not-sorted", mockDappContract.set_number(randomNumber));
+    await expectRevertWithErrorMessage("outis/signatures-not-sorted", mockDappContract.set_number(randomNumber));
   });
 });

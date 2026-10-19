@@ -1,8 +1,8 @@
-use argent::offchain_message::{
+use outis::offchain_message::{
     IOffChainMessageHashRev0, IOffChainMessageHashRev1, IStructHashRev0, IStructHashRev1, StarkNetDomain,
     StarknetDomain, StructHashStarkNetDomain, get_message_hash_rev_1_with_precalc,
 };
-use argent::outside_execution::outside_execution::OutsideExecution;
+use outis::outside_execution::outside_execution::OutsideExecution;
 use core::hash::{HashStateExTrait, HashStateTrait};
 use core::pedersen::PedersenTrait;
 use core::poseidon::poseidon_hash_span;

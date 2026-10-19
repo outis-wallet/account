@@ -1,7 +1,7 @@
-use argent::multiowner_account::{argent_account::ArgentAccount, events::EscapeSecurityPeriodChanged};
-use argent::recovery::EscapeStatus;
-use argent::signer::signer_signature::starknet_signer_from_pubkey;
-use crate::{ArgentAccountSetup, ITestArgentAccountDispatcherTrait, StarknetKeyPair, initialize_account};
+use outis::multiowner_account::{outis_account::OutisAccount, events::EscapeSecurityPeriodChanged};
+use outis::recovery::EscapeStatus;
+use outis::signer::signer_signature::starknet_signer_from_pubkey;
+use crate::{OutisAccountSetup, ITestOutisAccountDispatcherTrait, StarknetKeyPair, initialize_account};
 use snforge_std::{
     EventSpyAssertionsTrait, EventSpyTrait, spy_events, start_cheat_block_timestamp_global,
     start_cheat_caller_address_global,
@@ -9,7 +9,7 @@ use snforge_std::{
 
 #[test]
 fn set_escape_security_period() {
-    let ArgentAccountSetup { account, .. } = initialize_account();
+    let OutisAccountSetup { account, .. } = initialize_account();
     let default_escape_security_period = account.get_escape_security_period();
     assert_eq!(default_escape_security_period, 7 * 24 * 60 * 60);
 
@@ -21,7 +21,7 @@ fn set_escape_security_period() {
     let new_escape_security_period = account.get_escape_security_period();
     assert_eq!(new_escape_security_period, 4200);
 
-    let event = ArgentAccount::Event::EscapeSecurityPeriodChanged(
+    let event = OutisAccount::Event::EscapeSecurityPeriodChanged(
         EscapeSecurityPeriodChanged { escape_security_period: 4200 },
     );
     spy.assert_emitted(@array![(account.contract_address, event)]);
@@ -30,9 +30,9 @@ fn set_escape_security_period() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/ongoing-escape',))]
+#[should_panic(expected: ('outis/ongoing-escape',))]
 fn set_escape_security_period_with_not_ready_escape() {
-    let ArgentAccountSetup { account, .. } = initialize_account();
+    let OutisAccountSetup { account, .. } = initialize_account();
     account.trigger_escape_guardian(Option::None);
 
     let (_, status) = account.get_escape_and_status();
@@ -43,9 +43,9 @@ fn set_escape_security_period_with_not_ready_escape() {
 
 
 #[test]
-#[should_panic(expected: ('argent/ongoing-escape',))]
+#[should_panic(expected: ('outis/ongoing-escape',))]
 fn set_escape_security_period_with_ready_escape() {
-    let ArgentAccountSetup { account, .. } = initialize_account();
+    let OutisAccountSetup { account, .. } = initialize_account();
     account.trigger_escape_guardian(Option::None);
 
     start_cheat_block_timestamp_global(7 * 24 * 60 * 60);
@@ -57,7 +57,7 @@ fn set_escape_security_period_with_ready_escape() {
 
 #[test]
 fn set_escape_security_period_with_expired_escape() {
-    let ArgentAccountSetup { account, .. } = initialize_account();
+    let OutisAccountSetup { account, .. } = initialize_account();
     account.trigger_escape_guardian(Option::None);
 
     start_cheat_block_timestamp_global(7 * 24 * 60 * 60 * 2);
@@ -76,7 +76,7 @@ fn set_escape_security_period_with_expired_escape() {
 
 #[test]
 fn set_escape_security_period_get_escape_status() {
-    let ArgentAccountSetup { account, .. } = initialize_account();
+    let OutisAccountSetup { account, .. } = initialize_account();
     account.set_escape_security_period(4200);
 
     let (_, no_escape) = account.get_escape_and_status();
@@ -103,24 +103,24 @@ fn set_escape_security_period_get_escape_status() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/only-self',))]
+#[should_panic(expected: ('outis/only-self',))]
 fn set_escape_security_period_outside() {
-    let ArgentAccountSetup { account, .. } = initialize_account();
+    let OutisAccountSetup { account, .. } = initialize_account();
     start_cheat_caller_address_global('another caller'.try_into().unwrap());
     account.set_escape_security_period(4200);
 }
 
 #[test]
-#[should_panic(expected: ('argent/invalid-security-period',))]
+#[should_panic(expected: ('outis/invalid-security-period',))]
 fn set_escape_security_period__to_zero() {
-    let ArgentAccountSetup { account, .. } = initialize_account();
+    let OutisAccountSetup { account, .. } = initialize_account();
     account.set_escape_security_period(0);
 }
 
 #[test]
-#[should_panic(expected: ('argent/invalid-escape',))]
+#[should_panic(expected: ('outis/invalid-escape',))]
 fn set_escape_security_period_escape_too_early() {
-    let ArgentAccountSetup { account, .. } = initialize_account();
+    let OutisAccountSetup { account, .. } = initialize_account();
     account.set_escape_security_period(4200);
     start_cheat_block_timestamp_global(100);
     account.trigger_escape_owner(StarknetKeyPair::random().signer());
@@ -130,7 +130,7 @@ fn set_escape_security_period_escape_too_early() {
 
 #[test]
 fn set_escape_security_period_escape_escape() {
-    let ArgentAccountSetup { account, .. } = initialize_account();
+    let OutisAccountSetup { account, .. } = initialize_account();
     account.set_escape_security_period(4200);
     start_cheat_block_timestamp_global(100);
     let trigger_owner = StarknetKeyPair::random().signer();
@@ -142,9 +142,9 @@ fn set_escape_security_period_escape_escape() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/invalid-escape',))]
+#[should_panic(expected: ('outis/invalid-escape',))]
 fn set_escape_security_period_escape_escape_too_late() {
-    let ArgentAccountSetup { account, .. } = initialize_account();
+    let OutisAccountSetup { account, .. } = initialize_account();
     account.set_escape_security_period(4200);
     start_cheat_block_timestamp_global(100);
     account.trigger_escape_owner(StarknetKeyPair::random().signer());
@@ -155,7 +155,7 @@ fn set_escape_security_period_escape_escape_too_late() {
 
 #[test]
 fn escape_owner_default() {
-    let ArgentAccountSetup { account, .. } = initialize_account();
+    let OutisAccountSetup { account, .. } = initialize_account();
     start_cheat_block_timestamp_global(100);
     let trigger_owner = StarknetKeyPair::random().signer();
     account.trigger_escape_owner(trigger_owner);

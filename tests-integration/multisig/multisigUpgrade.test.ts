@@ -8,7 +8,6 @@ import {
   SignerType,
   StarknetKeyPair,
   deployLegacyMultisig,
-  deployMultisig,
   deployMultisig1_1,
   expectEvent,
   fundAccountWithStrk,
@@ -52,20 +51,14 @@ describe("ArgentMultisig: upgrade", function () {
       deployMultisig: (threshold: number) => deployLegacyMultisig(classHashV011, threshold),
       getGuidsSelector: "get_signers",
     });
-    const v020 = "0.2.0";
-    const classHashV020 = await manager.declareArtifactMultisigContract(v020);
-    artifactNames.push({
-      name: v020,
-      deployMultisig: (threshold: number) =>
-        deployMultisig({ classHash: classHashV020, threshold, signersLength: threshold }),
-      getGuidsSelector: "get_signer_guids",
-    });
+    // Argent Multisig 0.2.0 is not in the list: from 0.2.0 on, an upgrade requires the new class to
+    // return the same name as the old one, and the Outis class returns 'OutisMultisig'.
     mockDapp = await manager.declareAndDeployContract("MockDapp");
   });
 
   it("Upgrade from current version to FutureVersionMultisig", async function () {
     // This is the same as Argent Multisig but with a different version (to have another class hash)
-    const argentMultisigFutureClassHash = await manager.declareLocalContract("MockFutureArgentMultisig");
+    const argentMultisigFutureClassHash = await manager.declareLocalContract("MockFutureOutisMultisig");
 
     const { account } = await deployMultisig1_1();
     await upgradeAccount(account, argentMultisigFutureClassHash);
@@ -78,10 +71,10 @@ describe("ArgentMultisig: upgrade", function () {
   });
 
   it("Shouldn't be possible to upgrade from current version to FutureVersionMultisig with extra calldata", async function () {
-    const argentMultisigFutureClassHash = await manager.declareLocalContract("MockFutureArgentMultisig");
+    const argentMultisigFutureClassHash = await manager.declareLocalContract("MockFutureOutisMultisig");
 
     const { account } = await deployMultisig1_1();
-    await upgradeAccount(account, argentMultisigFutureClassHash, [1]).should.be.rejectedWith("argent/unexpected-data");
+    await upgradeAccount(account, argentMultisigFutureClassHash, [1]).should.be.rejectedWith("outis/unexpected-data");
   });
 
   it("Waiting for data to be filled", function () {
@@ -90,7 +83,7 @@ describe("ArgentMultisig: upgrade", function () {
         for (const threshold of [1, 3, 10]) {
           it(`Upgrade from ${name} to Current Version with ${threshold} key(s)`, async function () {
             const { account, accountContract, keys } = await deployMultisig(threshold);
-            const currentImpl = await manager.declareLocalContract("ArgentMultisigAccount");
+            const currentImpl = await manager.declareLocalContract("OutisMultisigAccount");
 
             const pubKeys = keys.map((key) => key.guid);
             const accountSigners = (await accountContract.call(getGuidsSelector)) as bigint[];
@@ -124,7 +117,7 @@ describe("ArgentMultisig: upgrade", function () {
 
             // As old version might be in V1 or V2, we need to create a new account with V3
             const accountV3 = new Account({
-              provider: account,
+              provider: account.provider,
               address: account.address,
               signer: new MultisigSigner(newSigners),
               cairoVersion: "1",
@@ -156,7 +149,7 @@ describe("ArgentMultisig: upgrade", function () {
 
     const mockDappClassHash = await manager.declareLocalContract("MockDapp");
     await upgradeAccount(account, mockDappClassHash).should.be.rejectedWith(
-      "(0x617267656e742f6d756c746963616c6c2d6661696c6564 ('argent/multicall-failed'), 0x0 (''), 0x454e545259504f494e545f4e4f545f464f554e44 ('ENTRYPOINT_NOT_FOUND'), 0x454e545259504f494e545f4641494c4544 ('ENTRYPOINT_FAILED'), 0x454e545259504f494e545f4641494c4544 ('ENTRYPOINT_FAILED')).",
+      "(0x6f757469732f6d756c746963616c6c2d6661696c6564 ('outis/multicall-failed'), 0x0 (''), 0x454e545259504f494e545f4e4f545f464f554e44 ('ENTRYPOINT_NOT_FOUND'), 0x454e545259504f494e545f4641494c4544 ('ENTRYPOINT_FAILED'), 0x454e545259504f494e545f4641494c4544 ('ENTRYPOINT_FAILED')).",
     );
   });
 });

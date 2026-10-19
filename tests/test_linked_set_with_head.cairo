@@ -1,8 +1,8 @@
-use argent::linked_set::linked_set_with_head::{
+use outis::linked_set::linked_set_with_head::{
     LinkedSetWithHead, LinkedSetWithHeadReadImpl, LinkedSetWithHeadWriteImpl, MutableLinkedSetWithHeadReadImpl,
 };
-use argent::multiowner_account::signer_storage_linked_set::SignerStorageValueLinkedSetConfig;
-use argent::signer::signer_signature::{SignerStorageValue, SignerTrait, SignerType};
+use outis::multiowner_account::signer_storage_linked_set::SignerStorageValueLinkedSetConfig;
+use outis::signer::signer_signature::{SignerStorageValue, SignerTrait, SignerType};
 use crate::StarknetKeyPair;
 use starknet::storage::{Mutable, StorageBase};
 
@@ -10,8 +10,8 @@ type ComponentState = LinkedSetMock::ComponentState<LinkedSetMock::Storage>;
 
 #[starknet::component]
 pub mod LinkedSetMock {
-    use argent::linked_set::linked_set_with_head::LinkedSetWithHead;
-    use argent::signer::signer_signature::SignerStorageValue;
+    use outis::linked_set::linked_set_with_head::LinkedSetWithHead;
+    use outis::signer::signer_signature::SignerStorageValue;
 
     #[storage]
     pub struct Storage {

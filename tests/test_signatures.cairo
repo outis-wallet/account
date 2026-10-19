@@ -1,5 +1,5 @@
-use argent::signer::eip191::calculate_eip191_hash;
-use argent::signer::signer_signature::{
+use outis::signer::eip191::calculate_eip191_hash;
+use outis::signer::signer_signature::{
     Eip191Signer, SECP_256_K1_HALF, SECP_256_R1_HALF, STARK_CURVE_ORDER_U256, Secp256k1Signer, Secp256r1Signer,
     SignerSignature, SignerSignatureTrait,
 };
@@ -27,7 +27,7 @@ fn test_stark_curve(message_hash: felt252) {
 }
 
 #[test]
-#[should_panic(expected: ('argent/invalid-r-value',))]
+#[should_panic(expected: ('outis/invalid-r-value',))]
 fn test_stark_curve_order_r() {
     let signer = StarknetKeyPair::random();
     let message_hash = 1;
@@ -39,7 +39,7 @@ fn test_stark_curve_order_r() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/invalid-s-value',))]
+#[should_panic(expected: ('outis/invalid-s-value',))]
 fn test_stark_curve_order_s() {
     let signer = StarknetKeyPair::random();
     let message_hash = 1;
@@ -83,7 +83,7 @@ fn test_secp256r1(message_hash: felt252) {
 }
 
 #[test]
-#[should_panic(expected: ('argent/invalid-sig-format',))]
+#[should_panic(expected: ('outis/invalid-sig-format',))]
 fn test_secp256r1_modified_r_invalid_sig_format() {
     let signer = Secp256r1KeyPair::from_secret(1);
     let message_hash = 1;
@@ -108,7 +108,7 @@ fn test_secp256r1_modified_r() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/malleable-signature',))]
+#[should_panic(expected: ('outis/malleable-signature',))]
 fn test_secp256r1_malleability_error() {
     let signature = Signature { r: 1, s: SECP_256_R1_HALF + 1, y_parity: true };
 
@@ -118,7 +118,7 @@ fn test_secp256r1_malleability_error() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/invalid-r-value',))]
+#[should_panic(expected: ('outis/invalid-r-value',))]
 fn test_secp256r1_high_r() {
     let r = Secp256Trait::<Secp256r1Point>::get_curve_size();
     let signature = Signature { r, s: 1, y_parity: true };
@@ -129,7 +129,7 @@ fn test_secp256r1_high_r() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/invalid-r-value',))]
+#[should_panic(expected: ('outis/invalid-r-value',))]
 fn test_secp256r1_0_r() {
     let signature = Signature { r: 0, s: 1, y_parity: true };
 
@@ -139,7 +139,7 @@ fn test_secp256r1_0_r() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/invalid-s-value',))]
+#[should_panic(expected: ('outis/invalid-s-value',))]
 fn test_secp256r1_high_s() {
     let s = Secp256Trait::<Secp256r1Point>::get_curve_size();
     let signature = Signature { r: 1, s, y_parity: true };
@@ -150,7 +150,7 @@ fn test_secp256r1_high_s() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/invalid-s-value',))]
+#[should_panic(expected: ('outis/invalid-s-value',))]
 fn test_secp256r1_0_s() {
     let signature = Signature { r: 1, s: 0, y_parity: true };
 
@@ -215,7 +215,7 @@ fn test_secp256k1_modified_r() {
 }
 
 #[test]
-#[should_panic(expected: ('argent/malleable-signature',))]
+#[should_panic(expected: ('outis/malleable-signature',))]
 fn test_secp256k1_malleability_error() {
     let signature = Signature { r: 1, s: SECP_256_K1_HALF + 1, y_parity: true };
 
@@ -284,7 +284,7 @@ fn test_eip191_modified_r() {
 
 
 #[test]
-#[should_panic(expected: ('argent/malleable-signature',))]
+#[should_panic(expected: ('outis/malleable-signature',))]
 fn test_eip191_malleability_error() {
     let signature = Signature { r: 1, s: SECP_256_K1_HALF + 1, y_parity: true };
 

@@ -2,22 +2,22 @@
 /// environment. It is solely for testing, educational, or demonstration purposes.
 /// Please refrain from relying on the functionality of this contract for any production code. 🚨
 #[starknet::contract(account)]
-mod MockFutureArgentMultisig {
-    use argent::account::{IAccount, IArgentAccount, IArgentAccountDispatcher, IArgentAccountDispatcherTrait, Version};
-    use argent::introspection::src5_component;
-    use argent::multisig_account::signer_manager::{
+mod MockFutureOutisMultisig {
+    use outis::account::{IAccount, IOutisAccount, IOutisAccountDispatcher, IOutisAccountDispatcherTrait, Version};
+    use outis::introspection::src5_component;
+    use outis::multisig_account::signer_manager::{
         signer_manager_component, signer_manager_component::SignerManagerInternalImpl,
     };
-    use argent::signer::signer_signature::{Signer, SignerSignature};
-    use argent::upgrade::{
+    use outis::signer::signer_signature::{Signer, SignerSignature};
+    use outis::upgrade::{
         IUpgradableCallback, IUpgradableCallbackOld, upgrade_component, upgrade_component::UpgradableInternalImpl,
     };
-    use argent::utils::{asserts::assert_only_self, calls::execute_multicall, serialization::full_deserialize};
+    use outis::utils::{asserts::assert_only_self, calls::execute_multicall, serialization::full_deserialize};
     use core::panic_with_felt252;
     use starknet::storage::StoragePointerReadAccess;
     use starknet::{ClassHash, VALIDATED, account::Call, get_contract_address, get_tx_info};
 
-    const NAME: felt252 = 'ArgentMultisig';
+    const NAME: felt252 = 'OutisMultisig';
     const VERSION_MAJOR: u8 = 0;
     const VERSION_MINOR: u8 = 6;
     const VERSION_PATCH: u8 = 0;
@@ -89,9 +89,9 @@ mod MockFutureArgentMultisig {
     }
 
     #[abi(embed_v0)]
-    impl ArgentAccountImpl of IArgentAccount<ContractState> {
+    impl OutisAccountImpl of IOutisAccount<ContractState> {
         fn __validate_declare__(self: @ContractState, class_hash: felt252) -> felt252 {
-            panic_with_felt252('argent/declare-not-available') // Not implemented yet
+            panic_with_felt252('outis/declare-not-available') // Not implemented yet
         }
 
         fn __validate_deploy__(
@@ -101,7 +101,7 @@ mod MockFutureArgentMultisig {
             threshold: usize,
             signers: Array<Signer>,
         ) -> felt252 {
-            panic_with_felt252('argent/deploy-not-available')
+            panic_with_felt252('outis/deploy-not-available')
         }
 
         fn get_name(self: @ContractState) -> felt252 {
@@ -118,7 +118,7 @@ mod MockFutureArgentMultisig {
     impl UpgradeableCallbackOldImpl of IUpgradableCallbackOld<ContractState> {
         // Called when coming from account < 0.2.0
         fn execute_after_upgrade(ref self: ContractState, data: Array<felt252>) -> Array<felt252> {
-            panic_with_felt252('argent/no-direct-upgrade');
+            panic_with_felt252('outis/no-direct-upgrade');
             array![]
         }
     }
@@ -128,10 +128,10 @@ mod MockFutureArgentMultisig {
         // Called when coming from account 0.2.0+
         fn perform_upgrade(ref self: ContractState, new_implementation: ClassHash, data: Span<felt252>) {
             assert_only_self();
-            let previous_version = IArgentAccountDispatcher { contract_address: get_contract_address() }.get_version();
-            assert(previous_version >= Version { major: 0, minor: 2, patch: 0 }, 'argent/invalid-from-version');
-            assert(previous_version < self.get_version(), 'argent/downgrade-not-allowed');
-            assert(data.len() == 0, 'argent/unexpected-data');
+            let previous_version = IOutisAccountDispatcher { contract_address: get_contract_address() }.get_version();
+            assert(previous_version >= Version { major: 0, minor: 2, patch: 0 }, 'outis/invalid-from-version');
+            assert(previous_version < self.get_version(), 'outis/downgrade-not-allowed');
+            assert(data.len() == 0, 'outis/unexpected-data');
             self.upgrade.complete_upgrade(new_implementation);
             self.signer_manager.assert_valid_storage();
         }
@@ -147,12 +147,12 @@ mod MockFutureArgentMultisig {
                     threshold: self.signer_manager.threshold.read(),
                     signer_signatures: parse_signature_array(raw_signature),
                 );
-            assert(valid, 'argent/invalid-signature');
+            assert(valid, 'outis/invalid-signature');
         }
     }
 
     fn parse_signature_array(raw_signature: Span<felt252>) -> Array<SignerSignature> {
-        full_deserialize(raw_signature).expect('argent/invalid-signature-format')
+        full_deserialize(raw_signature).expect('outis/invalid-signature-format')
     }
 }
 

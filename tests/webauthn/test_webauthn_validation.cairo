@@ -1,5 +1,5 @@
-use argent::signer::signer_signature::{Signer, SignerTrait, WebauthnSigner, is_valid_webauthn_signature};
-use argent::signer::webauthn::WebauthnSignature;
+use outis::signer::signer_signature::{Signer, SignerTrait, WebauthnSigner, is_valid_webauthn_signature};
+use outis::signer::webauthn::WebauthnSignature;
 use starknet::secp256_trait::Signature;
 
 // impl into
@@ -20,8 +20,8 @@ impl ByteArrayIntoSpanU8 of IntoBytes {
 
 fn new_webauthn_signer(origin: ByteArray, rp_id_hash: u256, pubkey: u256) -> WebauthnSigner {
     let origin = origin.into_bytes();
-    let rp_id_hash = rp_id_hash.try_into().expect('argent/zero-rp-id-hash');
-    let pubkey = pubkey.try_into().expect('argent/zero-pubkey');
+    let rp_id_hash = rp_id_hash.try_into().expect('outis/zero-rp-id-hash');
+    let pubkey = pubkey.try_into().expect('outis/zero-pubkey');
     WebauthnSigner { origin, rp_id_hash, pubkey }
 }
 

@@ -69,7 +69,7 @@ describe("ArgentMultisig Recovery", function () {
       selector: hash.getSelectorFromName("execute_escape"),
       calldata: [],
     });
-    await expectRevertWithErrorMessage("argent/invalid-selector", accountContract.trigger_escape(replaceSignerCall));
+    await expectRevertWithErrorMessage("outis/invalid-selector", accountContract.trigger_escape(replaceSignerCall));
   });
 
   it(`Escape should fail outside time window`, async function () {
@@ -79,6 +79,6 @@ describe("ArgentMultisig Recovery", function () {
     await accountContract.trigger_escape(replaceSignerCall);
 
     await manager.setTime(initialTime + 1);
-    await expectRevertWithErrorMessage("argent/invalid-escape", accountContract.execute_escape(replaceSignerCall));
+    await expectRevertWithErrorMessage("outis/invalid-escape", accountContract.execute_escape(replaceSignerCall));
   });
 });
