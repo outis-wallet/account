@@ -1,0 +1,12 @@
+cairo
+venv
+target
+deployments/artifacts
+dist
+.github
+tests-integration/fixtures
+starknet-devnet-rs
+.svelte-kit
+docs
+# Uses his own prettier config
+examples
