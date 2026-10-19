@@ -25,6 +25,8 @@ Changes made for Outis, from 2026-09-30:
 - The Cairo CI no longer checks formatting (`scarb fmt --check`): sorted, `outis` comes after `core`
   and `crate` in imports where `argent` came before them, and the sources stay exactly as the rename
   makes them. `scripts/compare-with-upstream.mjs` is formatted with Prettier, as upstream's CI checks.
+- `gas-report.txt` is measured again (2026-10-19) with the Outis class on devnet 0.10.0, where the
+  gas-report CI job measures it.
 
 No statement of the contracts was added, removed or reordered. The README was rewritten for Outis on
 2026-10-19 (Voyager shows it beside the verified class). The other files here, including the docs,
